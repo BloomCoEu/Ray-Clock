@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, Platform, View, StyleSheet, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { KeyboardAvoidingView, Platform, View, StyleSheet, ScrollView, Text, TouchableOpacity, Alert } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { useAuth } from '@/hooks/use-auth';
@@ -8,6 +8,8 @@ import { taskService } from '@/lib/appwrite-service';
 import { TimerDisplay } from '@/components/timer-display';
 import { TimerControls } from '@/components/timer-controls';
 import { TaskList } from '@/components/task-list';
+import { TaskModal } from '@/components/task-modal';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   const user = useAppStore((state) => state.user);
@@ -21,9 +23,14 @@ export default function HomeScreen() {
   const setTimerIsRunning = useAppStore((state) => state.setTimerIsRunning);
   const setElapsedTime = useAppStore((state) => state.setElapsedTime);
   const setCurrentTaskIndex = useAppStore((state) => state.setCurrentTaskIndex);
+  const addTask = useAppStore((state) => state.addTask);
+  const updateTask = useAppStore((state) => state.updateTask);
+  const removeTask = useAppStore((state) => state.removeTask);
   
   const { isLoading: authLoading } = useAuth();
   const [taskLoading, setTaskLoading] = useState(false);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [editingTask, setEditingTask] = useState<any>(null);
 
   // Use timer hook for countdown functionality
   useTimer();
@@ -48,6 +55,63 @@ export default function HomeScreen() {
     } finally {
       setTaskLoading(false);
     }
+  };
+
+  const handleAddTask = async (taskData: any) => {
+    try {
+      if (!user) return;
+      
+      const newTask = await taskService.createTask(user.$id, {
+        ...taskData,
+        order: tasks.length,
+        userId: user.$id,
+      });
+
+      addTask(newTask);
+      setShowTaskModal(false);
+      Alert.alert('Success', 'Task created');
+    } catch (error) {
+      console.error('Error adding task:', error);
+      Alert.alert('Error', 'Failed to create task');
+    }
+  };
+
+  const handleEditTask = async (taskData: any) => {
+    try {
+      if (!user || !editingTask) return;
+
+      await taskService.updateTask(editingTask.$id, taskData);
+      updateTask(editingTask.$id, taskData);
+      setShowTaskModal(false);
+      setEditingTask(null);
+      Alert.alert('Success', 'Task updated');
+    } catch (error) {
+      console.error('Error updating task:', error);
+      Alert.alert('Error', 'Failed to update task');
+    }
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    Alert.alert(
+      'Delete Task',
+      'Are you sure you want to delete this task?',
+      [
+        { text: 'Cancel' },
+        {
+          text: 'Delete',
+          onPress: async () => {
+            try {
+              await taskService.deleteTask(taskId);
+              removeTask(taskId);
+              Alert.alert('Success', 'Task deleted');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to delete task');
+            }
+          },
+          style: 'destructive',
+        },
+      ]
+    );
   };
 
   if (authLoading || taskLoading) {
@@ -112,7 +176,18 @@ export default function HomeScreen() {
             />
 
             <View style={styles.taskListContainer}>
-              <Text style={styles.taskListTitle}>Remaining Tasks</Text>
+              <View style={styles.taskListHeader}>
+                <Text style={styles.taskListTitle}>Remaining Tasks</Text>
+                <TouchableOpacity
+                  style={[styles.addButton, { backgroundColor: accentColor }]}
+                  onPress={() => {
+                    setEditingTask(null);
+                    setShowTaskModal(true);
+                  }}
+                >
+                  <Ionicons name="add" size={20} color="white" />
+                </TouchableOpacity>
+              </View>
               <TaskList
                 tasks={tasks}
                 currentTaskIndex={currentTaskIndex}
@@ -124,9 +199,30 @@ export default function HomeScreen() {
           <View style={styles.emptyStateContainer}>
             <Text style={styles.emptyStateText}>🎉 No tasks yet!</Text>
             <Text style={styles.emptyStateSubtext}>Create a task to get started</Text>
+            <TouchableOpacity
+              style={[styles.createTaskButton, { backgroundColor: accentColor }]}
+              onPress={() => {
+                setEditingTask(null);
+                setShowTaskModal(true);
+              }}
+            >
+              <Ionicons name="add" size={24} color="white" />
+              <Text style={styles.createTaskButtonText}>Create First Task</Text>
+            </TouchableOpacity>
           </View>
         )}
       </ScrollView>
+
+      <TaskModal
+        visible={showTaskModal}
+        task={editingTask}
+        onClose={() => {
+          setShowTaskModal(false);
+          setEditingTask(null);
+        }}
+        onSave={editingTask ? handleEditTask : handleAddTask}
+        accentColor={accentColor}
+      />
     </KeyboardAvoidingView>
   );
 }
@@ -160,12 +256,25 @@ const styles = StyleSheet.create({
   taskListContainer: {
     paddingBottom: 32,
   },
+  taskListHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginLeft: 12,
+    marginRight: 12,
+    marginTop: 20,
+    marginBottom: 8,
+  },
   taskListTitle: {
     fontSize: 18,
     fontWeight: '600',
-    marginLeft: 12,
-    marginTop: 20,
-    marginBottom: 8,
+  },
+  addButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   emptyStateContainer: {
     flex: 1,
@@ -180,5 +289,19 @@ const styles = StyleSheet.create({
   emptyStateSubtext: {
     fontSize: 16,
     color: '#999',
+    marginBottom: 24,
+  },
+  createTaskButton: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: 'center',
+    gap: 8,
+  },
+  createTaskButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
