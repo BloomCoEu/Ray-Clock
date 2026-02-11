@@ -86,19 +86,32 @@ export const authService = {
 // Task Service
 export const taskService = {
   async getTasks(userId: string) {
+    if (!appwriteConfig.isValid) {
+      console.warn('Appwrite not configured, returning empty tasks');
+      return { documents: [] };
+    }
     try {
       return await databases.listDocuments(
         APPWRITE_DATABASE_ID,
         APPWRITE_TASKS_COLLECTION_ID,
         [Query.equal('userId', userId), Query.orderAsc('order')]
       );
-    } catch (error) {
-      console.error('Error getting tasks:', error);
+    } catch (error: any) {
+      if (error?.message?.includes('Attribute not found')) {
+        console.error('❌ Appwrite schema error: userId attribute not found in tasks collection.');
+        console.error('📖 Please follow setup guide in APPWRITE_SETUP.md');
+      } else {
+        console.error('Error getting tasks:', error);
+      }
       return { documents: [] };
     }
   },
 
   async createTask(userId: string, taskData: Partial<Task>) {
+    if (!appwriteConfig.isValid) {
+      console.warn('Appwrite not configured, cannot create task');
+      throw new Error('Appwrite not configured. Please check .env file.');
+    }
     try {
       return await databases.createDocument(
         APPWRITE_DATABASE_ID,
@@ -111,8 +124,13 @@ export const taskService = {
           actualDuration: 0,
         }
       );
-    } catch (error) {
-      console.error('Error creating task:', error);
+    } catch (error: any) {
+      if (error?.message?.includes('not authorized')) {
+        console.error('❌ Appwrite permissions error: Check collection permissions in Appwrite Console');
+        console.error('📖 Please follow setup guide in APPWRITE_SETUP.md');
+      } else {
+        console.error('Error creating task:', error);
+      }
       throw error;
     }
   },
@@ -148,14 +166,23 @@ export const taskService = {
 // Preset Service
 export const presetService = {
   async getPresets(userId: string) {
+    if (!appwriteConfig.isValid) {
+      console.warn('Appwrite not configured, returning empty presets');
+      return { documents: [] };
+    }
     try {
       return await databases.listDocuments(
         APPWRITE_DATABASE_ID,
         APPWRITE_PRESETS_COLLECTION_ID,
         [Query.equal('userId', userId)]
       );
-    } catch (error) {
-      console.error('Error getting presets:', error);
+    } catch (error: any) {
+      if (error?.message?.includes('Attribute not found')) {
+        console.error('❌ Appwrite schema error: userId attribute not found in presets collection.');
+        console.error('📖 Please follow setup guide in APPWRITE_SETUP.md');
+      } else {
+        console.error('Error getting presets:', error);
+      }
       return { documents: [] };
     }
   },
@@ -234,6 +261,10 @@ export const presetService = {
 // Settings Service
 export const settingsService = {
   async getSettings(userId: string) {
+    if (!appwriteConfig.isValid) {
+      console.warn('Appwrite not configured, returning null settings');
+      return null;
+    }
     try {
       const result = await databases.listDocuments(
         APPWRITE_DATABASE_ID,
@@ -241,13 +272,22 @@ export const settingsService = {
         [Query.equal('userId', userId), Query.limit(1)]
       );
       return result.documents[0] || null;
-    } catch (error) {
-      console.error('Error getting settings:', error);
+    } catch (error: any) {
+      if (error?.message?.includes('Attribute not found')) {
+        console.error('❌ Appwrite schema error: userId attribute not found in settings collection.');
+        console.error('📖 Please follow setup guide in APPWRITE_SETUP.md');
+      } else {
+        console.error('Error getting settings:', error);
+      }
       return null;
     }
   },
 
   async createSettings(userId: string, settingsData: Partial<Settings>) {
+    if (!appwriteConfig.isValid) {
+      console.warn('Appwrite not configured, cannot create settings');
+      return null;
+    }
     try {
       return await databases.createDocument(
         APPWRITE_DATABASE_ID,
@@ -258,9 +298,14 @@ export const settingsService = {
           userId,
         }
       );
-    } catch (error) {
-      console.error('Error creating settings:', error);
-      throw error;
+    } catch (error: any) {
+      if (error?.message?.includes('not authorized')) {
+        console.error('❌ Appwrite permissions error: Check collection permissions in Appwrite Console');
+        console.error('📖 Please follow setup guide in APPWRITE_SETUP.md');
+      } else {
+        console.error('Error creating settings:', error);
+      }
+      return null;
     }
   },
 
