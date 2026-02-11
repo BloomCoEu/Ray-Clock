@@ -53,7 +53,7 @@ export default function PresetsScreen() {
         userId: user.$id,
       });
 
-      setPresets([...presets, newPreset]);
+      setPresets([...presets, newPreset as any]);
       setPresetName('');
       setShowModal(false);
     } catch (error) {
@@ -80,7 +80,7 @@ export default function PresetsScreen() {
           order: order++,
           actualDuration: 0,
         });
-        createdTasks.push(createdTask);
+        createdTasks.push(createdTask as any);
       }
 
       setTasks(createdTasks);
@@ -106,7 +106,7 @@ export default function PresetsScreen() {
     try {
       if (!user) return;
       const duplicated = await presetService.duplicatePreset(presetId, user.$id);
-      setPresets([...presets, duplicated]);
+      setPresets([...presets, duplicated as any]);
       Alert.alert('Success', 'Preset duplicated');
     } catch (error) {
       console.error('Error duplicating preset:', error);

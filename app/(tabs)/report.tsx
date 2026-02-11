@@ -2,7 +2,6 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, Alert }
 import { useState, useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
 import { taskService } from '@/lib/appwrite-service';
-import { Ionicons } from '@expo/vector-icons';
 import * as types from '@/lib/types';
 
 export default function ReportScreen() {
