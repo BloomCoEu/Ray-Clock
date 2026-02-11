@@ -14,6 +14,18 @@ This guide will help you set up Appwrite backend for the Ray Clock application.
 2. Create a new project and give it a name (e.g., "Ray Clock")
 3. Note down your **Project ID** from the Settings page
 
+## Step 1.1: Enable Email/Password Auth
+
+1. Go to **Auth > Settings**
+2. Ensure **Email/Password** is enabled
+
+## Step 1.2: Add a Platform
+
+Add at least one platform so Appwrite accepts requests from your app:
+
+- **Web**: Use your Expo web URL (e.g., `http://localhost:8081` when running `npm run web`)
+- **Android/iOS**: Use your application identifier for production builds
+
 ## Step 2: Create Database and Collections
 
 1. In your Appwrite project, navigate to **Databases**

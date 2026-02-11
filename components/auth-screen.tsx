@@ -11,6 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import { useAuth } from '@/hooks/use-auth';
+import { appwriteConfig } from '@/lib/appwrite-service';
 
 interface AuthScreenProps {
   onLoginSuccess: () => void;
@@ -25,6 +26,14 @@ export function AuthScreen({ onLoginSuccess }: AuthScreenProps) {
   const { login, signup } = useAuth();
 
   const handleSubmit = async () => {
+    if (!appwriteConfig.isValid) {
+      Alert.alert(
+        'Appwrite not configured',
+        `Missing env vars: ${appwriteConfig.missingKeys.join(', ')}`
+      );
+      return;
+    }
+
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
@@ -128,6 +137,14 @@ export function AuthScreen({ onLoginSuccess }: AuthScreenProps) {
           </View>
 
           <View style={styles.footer}>
+            {!appwriteConfig.isValid && (
+              <View style={styles.configWarning}>
+                <Text style={styles.configTitle}>Appwrite config missing</Text>
+                <Text style={styles.configText}>
+                  {appwriteConfig.missingKeys.join(', ')}
+                </Text>
+              </View>
+            )}
             <Text style={styles.footerText}>
               Note: You need to configure Appwrite first
             </Text>
@@ -213,6 +230,27 @@ const styles = StyleSheet.create({
   },
   footer: {
     alignItems: 'center',
+  },
+  configWarning: {
+    backgroundColor: '#FEF3C7',
+    borderColor: '#F59E0B',
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  configTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#92400E',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  configText: {
+    fontSize: 12,
+    color: '#92400E',
+    textAlign: 'center',
   },
   footerText: {
     fontSize: 12,

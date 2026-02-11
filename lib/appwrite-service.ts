@@ -13,6 +13,31 @@ const APPWRITE_TASKS_COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_TASKS_COLL
 const APPWRITE_PRESETS_COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_PRESETS_COLLECTION_ID || '';
 const APPWRITE_SETTINGS_COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_SETTINGS_COLLECTION_ID || '';
 
+const APPWRITE_CONFIG = {
+  endpoint: APPWRITE_ENDPOINT,
+  projectId: APPWRITE_PROJECT_ID,
+  databaseId: APPWRITE_DATABASE_ID,
+  tasksCollectionId: APPWRITE_TASKS_COLLECTION_ID,
+  presetsCollectionId: APPWRITE_PRESETS_COLLECTION_ID,
+  settingsCollectionId: APPWRITE_SETTINGS_COLLECTION_ID,
+};
+
+const missingAppwriteKeys = Object.entries(APPWRITE_CONFIG)
+  .filter(([, value]) => !value)
+  .map(([key]) => key);
+
+export const appwriteConfig = {
+  ...APPWRITE_CONFIG,
+  missingKeys: missingAppwriteKeys,
+  isValid: missingAppwriteKeys.length === 0,
+};
+
+if (!appwriteConfig.isValid) {
+  console.warn(
+    `Appwrite config missing: ${appwriteConfig.missingKeys.join(', ')}`
+  );
+}
+
 client
   .setEndpoint(APPWRITE_ENDPOINT)
   .setProject(APPWRITE_PROJECT_ID);
