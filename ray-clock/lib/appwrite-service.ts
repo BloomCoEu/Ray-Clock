@@ -11,7 +11,7 @@ const SETTINGS_COLLECTION_ID = 'settings';
 // User operations
 export const userService = {
   async createUser(userId: string, email: string, name: string): Promise<types.User> {
-    return await databases.createDocument(
+    return (await databases.createDocument(
       DB_ID,
       USERS_COLLECTION_ID,
       userId,
@@ -26,11 +26,11 @@ export const userService = {
           pieTimerEnabled: false,
         },
       }
-    );
+    )) as unknown as types.User;
   },
 
   async getUser(userId: string): Promise<types.User> {
-    return await databases.getDocument(DB_ID, USERS_COLLECTION_ID, userId);
+    return (await databases.getDocument(DB_ID, USERS_COLLECTION_ID, userId)) as unknown as types.User;
   },
 
   async updateUser(userId: string, data: Partial<types.User>) {
@@ -46,32 +46,33 @@ export const userService = {
 // Task operations
 export const taskService = {
   async createTask(userId: string, task: Omit<types.Task, '$id' | '$createdAt' | '$updatedAt'>) {
-    return await databases.createDocument(
+    return (await databases.createDocument(
       DB_ID,
       TASKS_COLLECTION_ID,
       ID.unique(),
       {
         ...task,
         userId,
-      }
-    );
+      } as any
+    )) as unknown as types.Task;
   },
 
   async getTasks(userId: string): Promise<types.Task[]> {
-    return await databases.listDocuments(
+    const result = await databases.listDocuments(
       DB_ID,
       TASKS_COLLECTION_ID,
       [Query.equal('userId', userId), Query.orderAsc('order')]
     );
+    return (result.documents || []) as unknown as types.Task[];
   },
 
   async updateTask(taskId: string, data: Partial<types.Task>) {
-    return await databases.updateDocument(
+    return (await databases.updateDocument(
       DB_ID,
       TASKS_COLLECTION_ID,
       taskId,
-      data
-    );
+      data as any
+    )) as unknown as types.Task;
   },
 
   async deleteTask(taskId: string) {
@@ -98,32 +99,33 @@ export const taskService = {
 // Preset operations
 export const presetService = {
   async createPreset(userId: string, preset: Omit<types.Preset, '$id' | '$createdAt' | '$updatedAt'>) {
-    return await databases.createDocument(
+    return (await databases.createDocument(
       DB_ID,
       PRESETS_COLLECTION_ID,
       ID.unique(),
       {
         ...preset,
         userId,
-      }
-    );
+      } as any
+    )) as unknown as types.Preset;
   },
 
   async getPresets(userId: string): Promise<types.Preset[]> {
-    return await databases.listDocuments(
+    const result = await databases.listDocuments(
       DB_ID,
       PRESETS_COLLECTION_ID,
       [Query.equal('userId', userId)]
     );
+    return (result.documents || []) as unknown as types.Preset[];
   },
 
   async updatePreset(presetId: string, data: Partial<types.Preset>) {
-    return await databases.updateDocument(
+    return (await databases.updateDocument(
       DB_ID,
       PRESETS_COLLECTION_ID,
       presetId,
-      data
-    );
+      data as any
+    )) as unknown as types.Preset;
   },
 
   async deletePreset(presetId: string) {
@@ -135,16 +137,16 @@ export const presetService = {
   },
 
   async duplicatePreset(presetId: string, userId: string) {
-    const preset = await databases.getDocument(
+    const preset = (await databases.getDocument(
       DB_ID,
       PRESETS_COLLECTION_ID,
       presetId
-    );
-    delete (preset as any).$id;
-    delete (preset as any).$createdAt;
-    delete (preset as any).$updatedAt;
+    )) as any;
+    delete preset.$id;
+    delete preset.$createdAt;
+    delete preset.$updatedAt;
 
-    return await databases.createDocument(
+    return (await databases.createDocument(
       DB_ID,
       PRESETS_COLLECTION_ID,
       ID.unique(),
@@ -152,25 +154,25 @@ export const presetService = {
         ...preset,
         userId,
         name: `${preset.name} (Copy)`,
-      }
-    );
+      } as any
+    )) as unknown as types.Preset;
   },
 };
 
 // Settings operations
 export const settingsService = {
   async createSettings(userId: string, settings: Omit<types.Settings, '$id' | '$createdAt' | '$updatedAt'>) {
-    return await databases.createDocument(
+    return (await databases.createDocument(
       DB_ID,
       SETTINGS_COLLECTION_ID,
       userId,
-      settings
-    );
+      settings as any
+    )) as unknown as types.Settings;
   },
 
   async getSettings(userId: string): Promise<types.Settings> {
     try {
-      return await databases.getDocument(DB_ID, SETTINGS_COLLECTION_ID, userId);
+      return (await databases.getDocument(DB_ID, SETTINGS_COLLECTION_ID, userId)) as unknown as types.Settings;
     } catch (error) {
       // If settings don't exist, create default ones
       return await this.createSettings(userId, {
@@ -185,11 +187,11 @@ export const settingsService = {
   },
 
   async updateSettings(userId: string, data: Partial<types.Settings>) {
-    return await databases.updateDocument(
+    return (await databases.updateDocument(
       DB_ID,
       SETTINGS_COLLECTION_ID,
       userId,
-      data
-    );
+      data as any
+    )) as unknown as types.Settings;
   },
 };

@@ -51,7 +51,7 @@ export const TimerControls = ({
           style={[styles.skipButton, { borderColor: accentColor }]}
           onPress={onSkip}
         >
-          <Ionicons name="skip-forward" size={20} color={accentColor} />
+          <Ionicons name="play-skip-forward" size={20} color={accentColor} />
           <Text style={[styles.skipText, { color: accentColor }]}>Skip</Text>
         </TouchableOpacity>
       )}

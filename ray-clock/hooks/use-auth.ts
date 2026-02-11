@@ -95,7 +95,7 @@ export const useAuth = () => {
     try {
       await account.deleteSession('current');
       setUser(null);
-      setSettings(null);
+      // Settings will reset when user is null
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Logout failed');
