@@ -1,98 +1,166 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { KeyboardAvoidingView, Platform, View, StyleSheet, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { useEffect, useState } from 'react';
+import { useAppStore } from '@/lib/store';
+import { useAuth } from '@/hooks/use-auth';
+import { taskService } from '@/lib/appwrite-service';
+import { TimerDisplay } from '@/components/timer-display';
+import { TimerControls } from '@/components/timer-controls';
+import { TaskList } from '@/components/task-list';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const user = useAppStore((state) => state.user);
+  const tasks = useAppStore((state) => state.tasks);
+  const currentTaskIndex = useAppStore((state) => state.currentTaskIndex);
+  const timerIsRunning = useAppStore((state) => state.timerIsRunning);
+  const elapsedTime = useAppStore((state) => state.elapsedTime);
+  const settings = useAppStore((state) => state.settings);
+  
+  const setTasks = useAppStore((state) => state.setTasks);
+  const setTimerIsRunning = useAppStore((state) => state.setTimerIsRunning);
+  const setElapsedTime = useAppStore((state) => state.setElapsedTime);
+  
+  const { isLoading: authLoading } = useAuth();
+  const [taskLoading, setTaskLoading] = useState(false);
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  useEffect(() => {
+    if (user) {
+      loadTasks();
+    }
+  }, [user]);
+
+  const loadTasks = async () => {
+    try {
+      setTaskLoading(true);
+      if (!user) return;
+      const loadedTasks = await taskService.getTasks(user.$id);
+      setTasks(loadedTasks.documents || []);
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+    } finally {
+      setTaskLoading(false);
+    }
+  };
+
+  if (authLoading || taskLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (!user) {
+    return (
+      <View style={styles.notLoggedInContainer}>
+        <Text style={styles.notLoggedInText}>Please log in to continue</Text>
+      </View>
+    );
+  }
+
+  const currentTask = tasks[currentTaskIndex];
+  const accentColor = settings?.accentColor || '#10B981';
+
+  const handlePlayPause = () => {
+    setTimerIsRunning(!timerIsRunning);
+  };
+
+  const handleAdjustTime = (delta: number) => {
+    // delta in seconds
+    const newTime = Math.max(0, elapsedTime + delta);
+    setElapsedTime(newTime);
+  };
+
+  return (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <ScrollView style={styles.scrollView}>
+        {currentTask ? (
+          <>
+            <TimerDisplay
+              time={elapsedTime}
+              taskName={currentTask.title}
+              taskEmoji={currentTask.emoji || '📝'}
+              isRunning={timerIsRunning}
+              accentColor={accentColor}
+            />
+
+            <TimerControls
+              isRunning={timerIsRunning}
+              onPlayPause={handlePlayPause}
+              onAdjustTime={handleAdjustTime}
+              accentColor={accentColor}
+            />
+
+            <View style={styles.taskListContainer}>
+              <Text style={styles.taskListTitle}>Remaining Tasks</Text>
+              <TaskList
+                tasks={tasks}
+                currentTaskIndex={currentTaskIndex}
+                accentColor={accentColor}
+              />
+            </View>
+          </>
+        ) : (
+          <View style={styles.emptyStateContainer}>
+            <Text style={styles.emptyStateText}>🎉 No tasks yet!</Text>
+            <Text style={styles.emptyStateSubtext}>Create a task to get started</Text>
+          </View>
+        )}
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
   },
-  stepContainer: {
-    gap: 8,
+  scrollView: {
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#999',
+  },
+  notLoggedInContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notLoggedInText: {
+    fontSize: 16,
+    color: '#666',
+  },
+  taskListContainer: {
+    paddingBottom: 32,
+  },
+  taskListTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 12,
+    marginTop: 20,
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  emptyStateText: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  emptyStateSubtext: {
+    fontSize: 16,
+    color: '#999',
   },
 });
