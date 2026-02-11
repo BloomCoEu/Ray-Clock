@@ -1,28 +1,350 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, Alert } from 'react-native';
+import { useState, useEffect } from 'react';
+import { useAppStore } from '@/lib/store';
+import { taskService } from '@/lib/appwrite-service';
+import { Ionicons } from '@expo/vector-icons';
+import * as types from '@/lib/types';
 
 export default function ReportScreen() {
+  const user = useAppStore((state) => state.user);
+  const tasks = useAppStore((state) => state.tasks);
+  const settings = useAppStore((state) => state.settings);
+  const completedTasks = useAppStore((state) => state.completedTasks);
+  const setCompletedTasks = useAppStore((state) => state.setCompletedTasks);
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const accentColor = settings?.accentColor || '#10B981';
+
+  useEffect(() => {
+    if (user) {
+      loadCompletedTasks();
+    }
+  }, [user]);
+
+  const loadCompletedTasks = async () => {
+    try {
+      setIsLoading(true);
+      if (!user) return;
+      // Load all tasks and filter completed ones
+      const allTasks = await taskService.getTasks(user.$id);
+      const completed = (allTasks.documents || []).filter((t: types.Task) => t.completed);
+      setCompletedTasks(completed);
+    } catch (error) {
+      console.error('Error loading completed tasks:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const calculatePlannedTime = (taskList: types.Task[]) => {
+    return taskList.reduce((sum, t) => sum + t.plannedDuration, 0);
+  };
+
+  const calculateSpentTime = (taskList: types.Task[]) => {
+    return taskList.reduce((sum, t) => sum + (t.actualDuration || 0), 0);
+  };
+
+  const formatTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes - hours * 60;
+    if (hours > 0) {
+      return `${hours}h ${mins}m`;
+    }
+    return `${mins}m`;
+  };
+
+  const remainingTasks = tasks.filter((t) => !t.completed);
+  const plannedCompleted = calculatePlannedTime(completedTasks);
+  const spentCompleted = calculateSpentTime(completedTasks);
+  const plannedRemaining = calculatePlannedTime(remainingTasks);
+  const spentRemaining = calculateSpentTime(remainingTasks);
+  const plannedTotal = plannedCompleted + plannedRemaining;
+  const spentTotal = spentCompleted + spentRemaining;
+
+  const handleClearHistory = () => {
+    Alert.alert(
+      'Clear History',
+      'Are you sure you want to clear completed tasks?',
+      [
+        { text: 'Cancel' },
+        {
+          text: 'Clear',
+          onPress: async () => {
+            try {
+              for (const task of completedTasks) {
+                await taskService.deleteTask(task.$id);
+              }
+              setCompletedTasks([]);
+              Alert.alert('Success', 'Completed tasks cleared');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to clear tasks');
+            }
+          },
+          style: 'destructive',
+        },
+      ]
+    );
+  };
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.title}>Report</Text>
-      <Text style={styles.subtitle}>Coming soon...</Text>
-    </View>
+
+      {/* Summary Cards */}
+      <View style={styles.summaryContainer}>
+        <View style={styles.summaryCard}>
+          <Text style={styles.summaryLabel}>Planned</Text>
+          <Text style={[styles.summaryValue, { color: accentColor }]}>
+            {formatTime(plannedTotal)}
+          </Text>
+        </View>
+        <View style={styles.summaryCard}>
+          <Text style={styles.summaryLabel}>Spent</Text>
+          <Text style={[styles.summaryValue, { color: accentColor }]}>
+            {formatTime(spentTotal)}
+          </Text>
+        </View>
+      </View>
+
+      {/* Completed Section */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Completed ({completedTasks.length})</Text>
+          {completedTasks.length > 0 && (
+            <TouchableOpacity onPress={handleClearHistory}>
+              <Text style={[styles.clearButton, { color: accentColor }]}>Clear</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <View style={styles.tableHeader}>
+          <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Task</Text>
+          <Text style={[styles.tableHeaderCell, { width: 80 }]}>Planned</Text>
+          <Text style={[styles.tableHeaderCell, { width: 80 }]}>Spent</Text>
+        </View>
+
+        <FlatList
+          data={completedTasks}
+          renderItem={({ item }) => (
+            <View style={styles.tableRow}>
+              <View style={{ flex: 1 }}>
+                <View style={styles.taskNameContainer}>
+                  <Text style={styles.emoji}>{item.emoji || '📝'}</Text>
+                  <Text style={styles.taskName} numberOfLines={1}>
+                    {item.title}
+                  </Text>
+                </View>
+              </View>
+              <Text style={[styles.tableCell, { width: 80 }]}>
+                {item.plannedDuration}m
+              </Text>
+              <Text style={[styles.tableCell, { width: 80 }]}>
+                {item.actualDuration || 0}m
+              </Text>
+            </View>
+          )}
+          scrollEnabled={false}
+          keyExtractor={(item) => item.$id}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>No completed tasks</Text>
+          }
+        />
+
+        {completedTasks.length > 0 && (
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryRowLabel}>Total</Text>
+            <Text style={[styles.summaryRowValue, { width: 80 }]}>
+              {plannedCompleted}m
+            </Text>
+            <Text style={[styles.summaryRowValue, { width: 80 }]}>
+              {spentCompleted}m
+            </Text>
+          </View>
+        )}
+      </View>
+
+      {/* Remaining Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Remaining ({remainingTasks.length})</Text>
+
+        <View style={styles.tableHeader}>
+          <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Task</Text>
+          <Text style={[styles.tableHeaderCell, { width: 100 }]}>Planned</Text>
+          <Text style={[styles.tableHeaderCell, { width: 100 }]}>Spent</Text>
+        </View>
+
+        <FlatList
+          data={remainingTasks}
+          renderItem={({ item }) => (
+            <View style={styles.tableRow}>
+              <View style={{ flex: 1 }}>
+                <View style={styles.taskNameContainer}>
+                  <Text style={styles.emoji}>{item.emoji || '📝'}</Text>
+                  <Text style={styles.taskName} numberOfLines={1}>
+                    {item.title}
+                  </Text>
+                </View>
+              </View>
+              <Text style={[styles.tableCell, { width: 100 }]}>
+                {item.plannedDuration}m
+              </Text>
+              <Text style={[styles.tableCell, { width: 100 }]}>
+                {item.actualDuration || 0}m
+              </Text>
+            </View>
+          )}
+          scrollEnabled={false}
+          keyExtractor={(item) => item.$id}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>No remaining tasks</Text>
+          }
+        />
+
+        {remainingTasks.length > 0 && (
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryRowLabel}>Total</Text>
+            <Text style={[styles.summaryRowValue, { width: 100 }]}>
+              {plannedRemaining}m
+            </Text>
+            <Text style={[styles.summaryRowValue, { width: 100 }]}>
+              {spentRemaining}m
+            </Text>
+          </View>
+        )}
+      </View>
+
+      <Text style={styles.disclaimer}>
+        * Numbers may be slightly different due to rounding{'\n'}
+        * The Report shows a summary of the tasks on your Main List (including completed items
+        that are hidden)
+      </Text>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#fff',
+    paddingHorizontal: 16,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '600',
-    marginBottom: 8,
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 20,
+    marginTop: 16,
   },
-  subtitle: {
-    fontSize: 16,
+  summaryContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 24,
+  },
+  summaryCard: {
+    flex: 1,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    backgroundColor: '#f8f8f8',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  summaryLabel: {
+    fontSize: 12,
     color: '#999',
+    marginBottom: 4,
+  },
+  summaryValue: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  clearButton: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 6,
+    marginBottom: 4,
+  },
+  tableHeaderCell: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#666',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    alignItems: 'center',
+  },
+  taskNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  emoji: {
+    fontSize: 18,
+    marginRight: 8,
+  },
+  taskName: {
+    fontSize: 14,
+    fontWeight: '500',
+    flex: 1,
+  },
+  tableCell: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'right',
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    backgroundColor: '#f8f8f8',
+    borderRadius: 6,
+    marginTop: 8,
+    alignItems: 'center',
+    fontWeight: '600',
+  },
+  summaryRowLabel: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  summaryRowValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'right',
+  },
+  emptyText: {
+    paddingVertical: 16,
+    textAlign: 'center',
+    color: '#999',
+    fontSize: 14,
+  },
+  disclaimer: {
+    fontSize: 12,
+    color: '#999',
+    lineHeight: 18,
+    marginVertical: 20,
+    fontStyle: 'italic',
   },
 });
