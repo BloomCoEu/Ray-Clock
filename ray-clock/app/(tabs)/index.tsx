@@ -2,6 +2,8 @@ import { KeyboardAvoidingView, Platform, View, StyleSheet, ScrollView, Text, Tou
 import { useEffect, useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { useAuth } from '@/hooks/use-auth';
+import { useTimer } from '@/hooks/use-timer';
+import { useTaskCompletion } from '@/hooks/use-task-completion';
 import { taskService } from '@/lib/appwrite-service';
 import { TimerDisplay } from '@/components/timer-display';
 import { TimerControls } from '@/components/timer-controls';
@@ -18,9 +20,16 @@ export default function HomeScreen() {
   const setTasks = useAppStore((state) => state.setTasks);
   const setTimerIsRunning = useAppStore((state) => state.setTimerIsRunning);
   const setElapsedTime = useAppStore((state) => state.setElapsedTime);
+  const setCurrentTaskIndex = useAppStore((state) => state.setCurrentTaskIndex);
   
   const { isLoading: authLoading } = useAuth();
   const [taskLoading, setTaskLoading] = useState(false);
+
+  // Use timer hook for countdown functionality
+  useTimer();
+  
+  // Use task completion hook to handle task completion
+  useTaskCompletion();
 
   useEffect(() => {
     if (user) {
@@ -70,6 +79,14 @@ export default function HomeScreen() {
     setElapsedTime(newTime);
   };
 
+  const handleSkipTask = () => {
+    if (currentTaskIndex < tasks.length - 1) {
+      setCurrentTaskIndex(currentTaskIndex + 1);
+      setElapsedTime(0);
+      setTimerIsRunning(false);
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -90,6 +107,7 @@ export default function HomeScreen() {
               isRunning={timerIsRunning}
               onPlayPause={handlePlayPause}
               onAdjustTime={handleAdjustTime}
+              onSkip={handleSkipTask}
               accentColor={accentColor}
             />
 
