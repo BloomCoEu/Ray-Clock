@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { useEffect, useState } from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAppStore } from '@/lib/store';
@@ -32,9 +33,9 @@ export default function RootLayout() {
     // Show loading screen while checking auth
     return (
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="loading" options={{ headerShown: false }} />
-        </Stack>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colorScheme === 'dark' ? '#fff' : '#000'} />
+        </View>
         <StatusBar style="auto" />
       </ThemeProvider>
     );
@@ -54,3 +55,11 @@ export default function RootLayout() {
     </ThemeProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
