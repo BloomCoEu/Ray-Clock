@@ -1,112 +1,130 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
+import { View, Text, StyleSheet, ScrollView, Linking, TouchableOpacity } from 'react-native';
 import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+import { Ionicons } from '@expo/vector-icons';
 
-export default function TabTwoScreen() {
+export default function ExploreScreen() {
+  const openLink = (url: string) => {
+    Linking.openURL(url);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>⏰ Ray Clock</Text>
+        <Text style={styles.subtitle}>Help & Information</Text>
+      </View>
+
+      <Collapsible title="Getting Started">
+        <Text style={styles.text}>
+          Welcome to Ray Clock! This app helps you manage your time effectively with task tracking and timer functionality.
+        </Text>
+        <Text style={styles.text}>
+          To get started, create your first task on the Home tab and start the timer when you&apos;re ready to begin.
+        </Text>
       </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
+
+      <Collapsible title="Timer Features">
+        <Text style={styles.text}>
+          • Start/pause/resume timer for each task{'\n'}
+          • Adjust time with -5/+5 minute buttons{'\n'}
+          • Automatic task completion when time runs out{'\n'}
+          • Track actual time vs planned time
+        </Text>
       </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
+
+      <Collapsible title="Task Management">
+        <Text style={styles.text}>
+          • Create tasks with custom emojis and durations{'\n'}
+          • Edit and delete tasks as needed{'\n'}
+          • Tasks automatically progress to the next one{'\n'}
+          • View completed tasks in Reports
+        </Text>
       </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
+
+      <Collapsible title="Preset Lists">
+        <Text style={styles.text}>
+          Save common task lists as presets and load them anytime. Perfect for morning routines, work sessions, or any recurring set of tasks.
+        </Text>
       </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
+
+      <Collapsible title="Customization">
+        <Text style={styles.text}>
+          Visit the Settings tab to customize:{'\n'}
+          • Accent color (13 options){'\n'}
+          • Theme (Auto, Light, Dark){'\n'}
+          • Default task duration{'\n'}
+          • Smart time detection
+        </Text>
       </Collapsible>
-    </ParallaxScrollView>
+
+      <Collapsible title="Setup Required">
+        <Text style={styles.text}>
+          This app requires Appwrite configuration. Please see APPWRITE_SETUP.md in the repository for detailed setup instructions.
+        </Text>
+        <TouchableOpacity
+          style={styles.linkButton}
+          onPress={() => openLink('https://github.com/BloomCoEu/Ray-Clock')}
+        >
+          <Ionicons name="logo-github" size={20} color="#10B981" />
+          <Text style={styles.linkText}>View on GitHub</Text>
+        </TouchableOpacity>
+      </Collapsible>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Built with ❤️ using Expo and Appwrite</Text>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
   },
-  titleContainer: {
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 16,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+  },
+  text: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: '#333',
+    marginBottom: 12,
+  },
+  linkButton: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#f0f9ff',
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  linkText: {
+    fontSize: 14,
+    color: '#10B981',
+    fontWeight: '600',
+  },
+  footer: {
+    paddingVertical: 32,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
   },
 });

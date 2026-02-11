@@ -67,7 +67,7 @@ export default function HomeScreen() {
         userId: user.$id,
       });
 
-      addTask(newTask);
+      addTask(newTask as any);
       setShowTaskModal(false);
       Alert.alert('Success', 'Task created');
     } catch (error) {

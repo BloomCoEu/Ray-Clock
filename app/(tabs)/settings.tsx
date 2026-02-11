@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, FlatList } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { settingsService } from '@/lib/appwrite-service';
 import { Ionicons } from '@expo/vector-icons';
@@ -166,7 +166,7 @@ export default function SettingsScreen() {
           <View>
             <Text style={styles.sectionTitle}>Smart Time Detection</Text>
             <Text style={styles.sectionDescription}>
-              If you type a number after a task's title it will automatically set the timer for that task
+              If you type a number after a task&apos;s title it will automatically set the timer for that task
             </Text>
           </View>
         </View>
