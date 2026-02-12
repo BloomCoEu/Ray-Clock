@@ -1,4 +1,4 @@
-import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import { YStack, XStack, Button, Text } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 
 interface TimerControlsProps {
@@ -17,92 +17,63 @@ export function TimerControls({
   accentColor,
 }: TimerControlsProps) {
   return (
-    <View style={styles.container}>
-      <View style={styles.adjustButtons}>
-        <TouchableOpacity
-          style={[styles.adjustButton, { borderColor: accentColor }]}
+    <YStack paddingHorizontal="$4" paddingVertical="$6">
+      <XStack justifyContent="center" gap="$4" marginBottom="$6">
+        <Button
+          size="$4"
+          borderWidth={2}
+          borderColor={accentColor}
+          backgroundColor="transparent"
+          color={accentColor}
+          minWidth={80}
           onPress={() => onAdjustTime(-5 * 60)}
+          fontWeight="600"
+          fontSize="$5"
         >
-          <Text style={[styles.adjustText, { color: accentColor }]}>-5m</Text>
-        </TouchableOpacity>
+          -5m
+        </Button>
         
-        <TouchableOpacity
-          style={[styles.adjustButton, { borderColor: accentColor }]}
+        <Button
+          size="$4"
+          borderWidth={2}
+          borderColor={accentColor}
+          backgroundColor="transparent"
+          color={accentColor}
+          minWidth={80}
           onPress={() => onAdjustTime(5 * 60)}
+          fontWeight="600"
+          fontSize="$5"
         >
-          <Text style={[styles.adjustText, { color: accentColor }]}>+5m</Text>
-        </TouchableOpacity>
-      </View>
+          +5m
+        </Button>
+      </XStack>
 
-      <View style={styles.mainControls}>
-        <TouchableOpacity
-          style={[styles.playButton, { backgroundColor: accentColor }]}
+      <YStack alignItems="center" marginBottom="$6">
+        <Button
+          circular
+          size="$6"
+          backgroundColor={accentColor}
           onPress={onPlayPause}
-        >
-          <Ionicons
-            name={isRunning ? 'pause' : 'play'}
-            size={40}
-            color="white"
-          />
-        </TouchableOpacity>
-      </View>
+          pressStyle={{ scale: 0.95 }}
+          icon={
+            <Ionicons
+              name={isRunning ? 'pause' : 'play'}
+              size={40}
+              color="white"
+            />
+          }
+        />
+      </YStack>
 
-      <TouchableOpacity style={styles.skipButton} onPress={onSkip}>
-        <Ionicons name="play-skip-forward" size={24} color="#666" />
-        <Text style={styles.skipText}>Skip Task</Text>
-      </TouchableOpacity>
-    </View>
+      <Button
+        size="$3"
+        backgroundColor="transparent"
+        onPress={onSkip}
+        icon={<Ionicons name="play-skip-forward" size={24} color="#666" />}
+        color="#666"
+      >
+        Skip Task
+      </Button>
+    </YStack>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 20,
-    paddingVertical: 24,
-  },
-  adjustButtons: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 16,
-    marginBottom: 24,
-  },
-  adjustButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderWidth: 2,
-    borderRadius: 8,
-    minWidth: 80,
-    alignItems: 'center',
-  },
-  adjustText: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  mainControls: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  playButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  skipButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 8,
-  },
-  skipText: {
-    fontSize: 14,
-    color: '#666',
-  },
-});

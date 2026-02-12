@@ -3,12 +3,14 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { useEffect, useState } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { ActivityIndicator } from 'react-native';
+import { TamaguiProvider, View } from 'tamagui';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAppStore } from '@/lib/store';
 import { useAuth } from '@/hooks/use-auth';
 import { AuthScreen } from '@/components/auth-screen';
+import config from '../tamagui.config';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -32,34 +34,34 @@ export default function RootLayout() {
   if (authLoading) {
     // Show loading screen while checking auth
     return (
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colorScheme === 'dark' ? '#fff' : '#000'} />
-        </View>
-        <StatusBar style="auto" />
-      </ThemeProvider>
+      <TamaguiProvider config={config}>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <View flex={1} justifyContent="center" alignItems="center">
+            <ActivityIndicator size="large" color={colorScheme === 'dark' ? '#fff' : '#000'} />
+          </View>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </TamaguiProvider>
     );
   }
 
   if (showAuth) {
-    return <AuthScreen onLoginSuccess={() => setShowAuth(false)} />;
+    return (
+      <TamaguiProvider config={config}>
+        <AuthScreen onLoginSuccess={() => setShowAuth(false)} />
+      </TamaguiProvider>
+    );
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <TamaguiProvider config={config}>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </TamaguiProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

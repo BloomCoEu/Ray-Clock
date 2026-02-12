@@ -1,13 +1,10 @@
 import { useState } from 'react';
 import {
   Modal,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
   ScrollView,
+  TextInput,
 } from 'react-native';
+import { YStack, XStack, Text, Button, Input } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 import type { Task } from '@/lib/types';
 
@@ -62,175 +59,107 @@ export function TaskModal({ visible, task, onClose, onSave, accentColor }: TaskM
       transparent={true}
       onRequestClose={handleClose}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{task ? 'Edit Task' : 'New Task'}</Text>
-            <TouchableOpacity onPress={handleClose}>
-              <Ionicons name="close" size={28} color="#000" />
-            </TouchableOpacity>
-          </View>
+      <YStack flex={1} justifyContent="flex-end" backgroundColor="rgba(0, 0, 0, 0.5)">
+        <YStack backgroundColor="white" borderTopLeftRadius="$5" borderTopRightRadius="$5" maxHeight="80%">
+          <XStack
+            justifyContent="space-between"
+            alignItems="center"
+            paddingHorizontal="$5"
+            paddingTop="$5"
+            paddingBottom="$4"
+            borderBottomWidth={1}
+            borderBottomColor="$gray5"
+          >
+            <Text fontSize="$8" fontWeight="700">{task ? 'Edit Task' : 'New Task'}</Text>
+            <Button
+              size="$3"
+              circular
+              backgroundColor="transparent"
+              onPress={handleClose}
+              icon={<Ionicons name="close" size={28} color="#000" />}
+            />
+          </XStack>
 
-          <ScrollView style={styles.modalContent}>
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Emoji</Text>
-              <TouchableOpacity
-                style={[styles.emojiButton, { borderColor: accentColor }]}
-                onPress={() => setShowEmojiPicker(!showEmojiPicker)}
-              >
-                <Text style={styles.selectedEmoji}>{emoji}</Text>
-              </TouchableOpacity>
+          <ScrollView style={{ flex: 1 }}>
+            <YStack paddingHorizontal="$5" paddingVertical="$4" gap="$5">
+              <YStack gap="$2">
+                <Text fontSize="$4" fontWeight="600">Emoji</Text>
+                <Button
+                  size="$5"
+                  borderWidth={2}
+                  borderColor={accentColor}
+                  backgroundColor="transparent"
+                  onPress={() => setShowEmojiPicker(!showEmojiPicker)}
+                >
+                  <Text fontSize={40}>{emoji}</Text>
+                </Button>
 
-              {showEmojiPicker && (
-                <View style={styles.emojiPicker}>
-                  {EMOJI_OPTIONS.map((option) => (
-                    <TouchableOpacity
-                      key={option}
-                      style={[
-                        styles.emojiOption,
-                        emoji === option && { backgroundColor: '#f0f0f0' },
-                      ]}
-                      onPress={() => {
-                        setEmoji(option);
-                        setShowEmojiPicker(false);
-                      }}
-                    >
-                      <Text style={styles.emojiOptionText}>{option}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
+                {showEmojiPicker && (
+                  <XStack flexWrap="wrap" gap="$2" marginTop="$3" padding="$2" backgroundColor="$gray2" borderRadius="$3">
+                    {EMOJI_OPTIONS.map((option) => (
+                      <Button
+                        key={option}
+                        size="$5"
+                        width={60}
+                        height={60}
+                        backgroundColor={emoji === option ? '$gray4' : 'transparent'}
+                        onPress={() => {
+                          setEmoji(option);
+                          setShowEmojiPicker(false);
+                        }}
+                      >
+                        <Text fontSize={32}>{option}</Text>
+                      </Button>
+                    ))}
+                  </XStack>
+                )}
+              </YStack>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Task Name</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter task name"
-                value={title}
-                onChangeText={setTitle}
-                placeholderTextColor="#999"
-              />
-            </View>
+              <YStack gap="$2">
+                <Text fontSize="$4" fontWeight="600">Task Name</Text>
+                <Input
+                  size="$4"
+                  placeholder="Enter task name"
+                  value={title}
+                  onChangeText={setTitle}
+                  borderColor="$gray5"
+                  borderWidth={1}
+                />
+              </YStack>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Duration (minutes)</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="15"
-                value={duration}
-                onChangeText={setDuration}
-                keyboardType="number-pad"
-                placeholderTextColor="#999"
-              />
-            </View>
+              <YStack gap="$2">
+                <Text fontSize="$4" fontWeight="600">Duration (minutes)</Text>
+                <Input
+                  size="$4"
+                  placeholder="15"
+                  value={duration}
+                  onChangeText={setDuration}
+                  keyboardType="number-pad"
+                  borderColor="$gray5"
+                  borderWidth={1}
+                />
+              </YStack>
+            </YStack>
           </ScrollView>
 
-          <View style={styles.modalFooter}>
-            <TouchableOpacity
-              style={[styles.saveButton, { backgroundColor: accentColor }]}
+          <YStack
+            paddingHorizontal="$5"
+            paddingVertical="$4"
+            borderTopWidth={1}
+            borderTopColor="$gray5"
+          >
+            <Button
+              size="$5"
+              backgroundColor={accentColor}
               onPress={handleSave}
+              fontWeight="600"
+              fontSize="$5"
             >
-              <Text style={styles.saveButtonText}>
-                {task ? 'Update Task' : 'Create Task'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+              {task ? 'Update Task' : 'Create Task'}
+            </Button>
+          </YStack>
+        </YStack>
+      </YStack>
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContainer: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e5e5',
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-  },
-  modalContent: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  formGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#e5e5e5',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-  },
-  emojiButton: {
-    borderWidth: 2,
-    borderRadius: 8,
-    padding: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  selectedEmoji: {
-    fontSize: 40,
-  },
-  emojiPicker: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 12,
-    padding: 8,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 8,
-  },
-  emojiOption: {
-    width: 60,
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  emojiOptionText: {
-    fontSize: 32,
-  },
-  modalFooter: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#e5e5e5',
-  },
-  saveButton: {
-    paddingVertical: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  saveButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-});
