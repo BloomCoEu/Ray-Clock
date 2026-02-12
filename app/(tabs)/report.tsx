@@ -79,6 +79,14 @@ export default function ReportScreen() {
   const averageBlock = tasks.length > 0 ? Math.round(plannedTotal / tasks.length) : 0;
   const scheduleStart = new Date();
   scheduleStart.setSeconds(0, 0);
+  const planningStartHour = 9;
+  const planningEndHour = 18;
+  if (scheduleStart.getHours() >= planningEndHour) {
+    scheduleStart.setDate(scheduleStart.getDate() + 1);
+    scheduleStart.setHours(planningStartHour, 0, 0, 0);
+  } else if (scheduleStart.getHours() < planningStartHour) {
+    scheduleStart.setHours(planningStartHour, 0, 0, 0);
+  }
   let cumulativeMinutes = 0;
   const scheduleItems = remainingTasks.map((task) => {
     const start = new Date(scheduleStart.getTime() + cumulativeMinutes * 60000);
@@ -165,8 +173,8 @@ export default function ReportScreen() {
         <View style={styles.timelineContainer}>
           <Text style={styles.timelineTitle}>Planned Timeline</Text>
           {scheduleItems.length > 0 ? (
-            scheduleItems.map(({ task, start, end }) => (
-              <View style={styles.timelineRow} key={task.$id}>
+            scheduleItems.map(({ task, start, end }, index) => (
+              <View style={styles.timelineRow} key={task.$id ?? `${task.title}-${index}`}>
                 <Text style={styles.timelineTime}>
                   {formatClockTime(start)} - {formatClockTime(end)}
                 </Text>
