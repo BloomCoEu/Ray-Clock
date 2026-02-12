@@ -1,6 +1,6 @@
-import { ScrollView, Modal, TextInput, Alert, FlatList } from 'react-native';
+import { ScrollView, Modal, Alert, FlatList } from 'react-native';
 import { useState, useEffect } from 'react';
-import { YStack, XStack, Text, Button } from 'tamagui';
+import { YStack, XStack, Text, Button, Input } from 'tamagui';
 import { useAppStore } from '@/lib/store';
 import { presetService, taskService } from '@/lib/appwrite-service';
 import { Ionicons } from '@expo/vector-icons';
@@ -253,19 +253,13 @@ export default function PresetsScreen() {
             <YStack gap="$4">
               <YStack gap="$2">
                 <Text fontSize="$3" fontWeight="600" marginBottom="$1">Preset Name</Text>
-                <TextInput
-                  style={{
-                    borderWidth: 1,
-                    borderColor: '#e5e5e5',
-                    borderRadius: 8,
-                    paddingVertical: 10,
-                    paddingHorizontal: 12,
-                    fontSize: 16,
-                  }}
+                <Input
+                  size="$4"
                   placeholder="Enter preset name"
                   value={presetName}
                   onChangeText={setPresetName}
-                  placeholderTextColor="#999"
+                  borderColor="$gray5"
+                  borderWidth={1}
                 />
               </YStack>
 
