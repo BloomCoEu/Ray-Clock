@@ -10,6 +10,8 @@ export const useAppStore = create<AppState>((set) => ({
   elapsedTime: 0,
   presets: [],
   settings: null,
+  isSyncing: false,
+  lastSyncError: null,
 
   setUser: (user) => set({ user }),
   
@@ -40,4 +42,8 @@ export const useAppStore = create<AppState>((set) => ({
   setPresets: (presets) => set({ presets }),
   
   setSettings: (settings) => set({ settings }),
+  
+  setIsSyncing: (isSyncing) => set({ isSyncing }),
+  
+  setLastSyncError: (error) => set({ lastSyncError: error }),
 }));

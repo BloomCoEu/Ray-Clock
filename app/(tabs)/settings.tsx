@@ -1,7 +1,8 @@
-import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, FlatList, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { settingsService } from '@/lib/appwrite-service';
+import { useTodoistSync } from '@/hooks/use-todoist-sync';
 import { Ionicons } from '@expo/vector-icons';
 
 const COLORS = [
@@ -27,6 +28,10 @@ export default function SettingsScreen() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [todoistApiKey, setTodoistApiKey] = useState(settings?.todoistApiKey || '');
+  const [showApiKey, setShowApiKey] = useState(false);
+
+  const { syncFromTodoist, isSyncing, syncMessage, lastSyncError } = useTodoistSync();
 
   const currentSettings = settings || {
     userId: user?.$id || '',
@@ -35,6 +40,8 @@ export default function SettingsScreen() {
     theme: 'auto' as const,
     smartTimeDetection: true,
     pieTimerEnabled: false,
+    todoistApiKey: '',
+    todoistSyncEnabled: false,
   };
 
   const handleSettingChange = async (key: string, value: any) => {
@@ -62,6 +69,38 @@ export default function SettingsScreen() {
     await handleSettingChange('defaultTime', time);
   };
 
+  const handleSaveTodoistApiKey = async () => {
+    if (!todoistApiKey.trim()) {
+      Alert.alert('Error', 'Please enter a valid Todoist API key');
+      return;
+    }
+
+    try {
+      await handleSettingChange('todoistApiKey', todoistApiKey.trim());
+      Alert.alert('Success', 'Todoist API key saved successfully');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save Todoist API key');
+    }
+  };
+
+  const handleSyncNow = async () => {
+    if (!currentSettings.todoistApiKey) {
+      Alert.alert('Error', 'Please configure your Todoist API key first');
+      return;
+    }
+
+    if (!currentSettings.todoistSyncEnabled) {
+      Alert.alert('Error', 'Please enable Todoist sync first');
+      return;
+    }
+
+    try {
+      await syncFromTodoist();
+    } catch (error) {
+      Alert.alert('Sync Error', 'Failed to sync with Todoist. Please check your API key and try again.');
+    }
+  };
+
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Settings</Text>
@@ -84,6 +123,86 @@ export default function SettingsScreen() {
           disabled={isLoading}
           style={styles.switch}
         />
+      </View>
+
+      {/* Todoist Integration Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>🔗 Todoist Integration</Text>
+        <Text style={styles.sectionDescription}>
+          Connect your Todoist account to sync tasks automatically.
+        </Text>
+
+        {/* API Key Input */}
+        <View style={styles.apiKeyContainer}>
+          <TextInput
+            style={styles.apiKeyInput}
+            placeholder="Enter Todoist API Key"
+            value={todoistApiKey}
+            onChangeText={setTodoistApiKey}
+            secureTextEntry={!showApiKey}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <TouchableOpacity
+            style={styles.eyeButton}
+            onPress={() => setShowApiKey(!showApiKey)}
+          >
+            <Ionicons
+              name={showApiKey ? 'eye-off' : 'eye'}
+              size={20}
+              color="#666"
+            />
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity
+          style={[styles.saveButton, { backgroundColor: currentSettings.accentColor }]}
+          onPress={handleSaveTodoistApiKey}
+          disabled={isLoading}
+        >
+          <Text style={styles.saveButtonText}>Save API Key</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.helperText}>
+          Get your API key from Todoist Settings → Integrations → Developer
+        </Text>
+
+        {/* Enable Sync Toggle */}
+        <View style={styles.syncToggleContainer}>
+          <Text style={styles.syncToggleLabel}>Enable Todoist Sync</Text>
+          <Switch
+            value={currentSettings.todoistSyncEnabled}
+            onValueChange={(value) =>
+              handleSettingChange('todoistSyncEnabled', value)
+            }
+            disabled={isLoading || !currentSettings.todoistApiKey}
+          />
+        </View>
+
+        {/* Sync Button */}
+        {currentSettings.todoistSyncEnabled && currentSettings.todoistApiKey && (
+          <TouchableOpacity
+            style={[styles.syncButton, { borderColor: currentSettings.accentColor }]}
+            onPress={handleSyncNow}
+            disabled={isSyncing || isLoading}
+          >
+            {isSyncing ? (
+              <ActivityIndicator size="small" color={currentSettings.accentColor} />
+            ) : (
+              <Ionicons name="sync" size={20} color={currentSettings.accentColor} />
+            )}
+            <Text style={[styles.syncButtonText, { color: currentSettings.accentColor }]}>
+              {isSyncing ? 'Syncing...' : 'Sync Now'}
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Sync Status Messages */}
+        {syncMessage && (
+          <Text style={[styles.syncStatus, { color: lastSyncError ? '#EF4444' : '#22C55E' }]}>
+            {syncMessage}
+          </Text>
+        )}
       </View>
 
       {/* Accent Color Section */}
@@ -336,6 +455,72 @@ const styles = StyleSheet.create({
   },
   spacer: {
     height: 32,
+  },
+  apiKeyContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: '#e5e5e5',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+  },
+  apiKeyInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 14,
+  },
+  eyeButton: {
+    padding: 8,
+  },
+  saveButton: {
+    marginTop: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  helperText: {
+    marginTop: 8,
+    fontSize: 12,
+    color: '#999',
+    fontStyle: 'italic',
+  },
+  syncToggleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 16,
+    paddingVertical: 8,
+  },
+  syncToggleLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  syncButton: {
+    marginTop: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  syncButtonText: {
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  syncStatus: {
+    marginTop: 8,
+    fontSize: 13,
+    textAlign: 'center',
   },
 });
 

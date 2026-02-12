@@ -17,6 +17,8 @@ export interface Task {
   order: number;
   createdAt?: string;
   updatedAt?: string;
+  todoistId?: string; // Todoist task ID for sync
+  lastSyncedAt?: string; // Last sync timestamp
 }
 
 export interface PresetTask {
@@ -44,6 +46,8 @@ export interface Settings {
   theme: 'auto' | 'light' | 'dark';
   smartTimeDetection: boolean;
   pieTimerEnabled: boolean;
+  todoistApiKey?: string; // Todoist API key for integration
+  todoistSyncEnabled?: boolean; // Enable/disable Todoist sync
   createdAt?: string;
   updatedAt?: string;
 }
@@ -57,6 +61,8 @@ export interface AppState {
   elapsedTime: number; // in seconds
   presets: Preset[];
   settings: Settings | null;
+  isSyncing: boolean; // Todoist sync status
+  lastSyncError: string | null; // Last sync error message
   
   // Actions
   setUser: (user: User | null) => void;
@@ -70,4 +76,6 @@ export interface AppState {
   setElapsedTime: (time: number) => void;
   setPresets: (presets: Preset[]) => void;
   setSettings: (settings: Settings) => void;
+  setIsSyncing: (isSyncing: boolean) => void;
+  setLastSyncError: (error: string | null) => void;
 }

@@ -11,6 +11,7 @@ A beautiful and intuitive time management app built with React Native and Expo.
 - 📱 **Cross-Platform**: Works on iOS, Android, and Web
 - ☁️ **Cloud Sync**: Powered by Appwrite for seamless data synchronization
 - 🎯 **Preset Lists**: Save and reuse common task lists (SAVERS, Morning routine, etc.)
+- 🔗 **Todoist Integration**: Import tasks from Todoist to stay in sync with your workflow
 
 ## Prerequisites
 
@@ -62,6 +63,30 @@ APPWRITE_API_KEY=your_server_api_key # Required for schema update script
 ```
 
 See [APPWRITE_SETUP.md](./APPWRITE_SETUP.md) for detailed instructions.
+
+## Todoist Integration (Optional)
+
+To enable Todoist integration:
+
+1. **Get your Todoist API key**
+   - Log in to Todoist
+   - Go to Settings → Integrations → Developer
+   - Copy your API token
+
+2. **Configure in Ray Clock**
+   - Open Ray Clock app
+   - Go to Settings tab
+   - Scroll to "Todoist Integration" section
+   - Paste your API key
+   - Click "Save API Key"
+   - Enable "Enable Todoist Sync" toggle
+
+3. **Sync tasks**
+   - Click "Sync Now" button to import tasks from Todoist
+   - Tasks will be imported with their titles, durations, and descriptions
+   - Only active (incomplete) tasks are synced
+
+**Note**: Currently, sync is one-way from Todoist to Ray Clock. Tasks created in Ray Clock won't automatically sync back to Todoist.
 
 ## Project Structure
 
@@ -138,6 +163,12 @@ Ray-Clock/
 - Load presets to main task list
 - Duplicate and edit presets
 - See total time and task count
+
+### Todoist Integration
+- Import tasks from Todoist
+- Sync task titles, durations, and emojis
+- Enable/disable sync as needed
+- Secure API key storage
 
 ### Reports & Analytics
 - Planned vs spent time comparison
