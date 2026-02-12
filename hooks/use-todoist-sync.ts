@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { todoistService } from '@/lib/todoist-service';
 import { taskService } from '@/lib/appwrite-service';
+import type { Task } from '@/lib/types';
 import { ID } from 'appwrite';
 
 export const useTodoistSync = () => {
@@ -70,7 +71,8 @@ export const useTodoistSync = () => {
             lastSyncedAt: new Date().toISOString(),
           });
 
-          addTask(createdTask as any);
+          // Type assertion is safe here as createTask returns a document with all Task fields
+          addTask(createdTask as unknown as Task);
           createdCount++;
         } catch (error) {
           console.error('Error creating task from Todoist:', error);
@@ -94,6 +96,7 @@ export const useTodoistSync = () => {
 
   /**
    * Push a Ray Clock task to Todoist
+   * Note: This is prepared for future two-way sync but not currently exposed
    */
   const pushTaskToTodoist = async (taskId: string) => {
     if (!user || !settings?.todoistApiKey || !settings?.todoistSyncEnabled) {

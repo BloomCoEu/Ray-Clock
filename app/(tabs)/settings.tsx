@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, FlatList, TextInput, Alert, ActivityIndicator } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
 import { settingsService } from '@/lib/appwrite-service';
 import { useTodoistSync } from '@/hooks/use-todoist-sync';
@@ -32,6 +32,13 @@ export default function SettingsScreen() {
   const [showApiKey, setShowApiKey] = useState(false);
 
   const { syncFromTodoist, isSyncing, syncMessage, lastSyncError } = useTodoistSync();
+
+  // Sync local state with settings when settings change
+  useEffect(() => {
+    if (settings?.todoistApiKey) {
+      setTodoistApiKey(settings.todoistApiKey);
+    }
+  }, [settings?.todoistApiKey]);
 
   const currentSettings = settings || {
     userId: user?.$id || '',

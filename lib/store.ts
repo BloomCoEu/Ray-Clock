@@ -45,5 +45,5 @@ export const useAppStore = create<AppState>((set) => ({
   
   setIsSyncing: (isSyncing) => set({ isSyncing }),
   
-  setLastSyncError: (error) => set({ lastSyncError: error }),
+  setLastSyncError: (errorMessage) => set({ lastSyncError: errorMessage }),
 }));

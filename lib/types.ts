@@ -77,5 +77,5 @@ export interface AppState {
   setPresets: (presets: Preset[]) => void;
   setSettings: (settings: Settings) => void;
   setIsSyncing: (isSyncing: boolean) => void;
-  setLastSyncError: (error: string | null) => void;
+  setLastSyncError: (errorMessage: string | null) => void;
 }
