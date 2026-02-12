@@ -58,6 +58,7 @@ EXPO_PUBLIC_APPWRITE_DATABASE_ID=your_database_id
 EXPO_PUBLIC_APPWRITE_TASKS_COLLECTION_ID=your_tasks_collection_id
 EXPO_PUBLIC_APPWRITE_PRESETS_COLLECTION_ID=your_presets_collection_id
 EXPO_PUBLIC_APPWRITE_SETTINGS_COLLECTION_ID=your_settings_collection_id
+APPWRITE_API_KEY=your_server_api_key # Required for schema update script
 ```
 
 See [APPWRITE_SETUP.md](./APPWRITE_SETUP.md) for detailed instructions.
@@ -98,6 +99,7 @@ Ray-Clock/
 - `npm run android` - Run on Android emulator
 - `npm run web` - Run in web browser
 - `npm run lint` - Run ESLint
+- `npm run appwrite:add-properties` - Add missing Appwrite collection attributes
 
 ## Tech Stack
 
