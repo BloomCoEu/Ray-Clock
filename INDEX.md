@@ -25,10 +25,14 @@
 | **[EXECUTIVE_SUMMARY.md](./EXECUTIVE_SUMMARY.md)** | High-level overview with visuals | 11 KB | Stakeholders, quick reference |
 | **[PRODUCTION_PLAN_README.md](./PRODUCTION_PLAN_README.md)** | Getting started guide | 9 KB | New team members, onboarding |
 | **[PRODUCTION_READINESS_PLAN.md](./PRODUCTION_READINESS_PLAN.md)** | Complete 35-issue breakdown | 31 KB | Developers, detailed planning |
+| **[RELEASE_SCHEDULE.md](./RELEASE_SCHEDULE.md)** | Alpha & beta release timeline | 11 KB | Release managers, testing |
+| **[CREATE_RELEASE_ISSUES.md](./CREATE_RELEASE_ISSUES.md)** | Guide for creating release issues | 8.6 KB | Project managers, release prep |
 | **[GITHUB_ISSUES_QUICK_GUIDE.md](./GITHUB_ISSUES_QUICK_GUIDE.md)** | Issue management guide | 9.4 KB | Project managers, workflows |
+| **[.github/ISSUE_TEMPLATE/alpha-release.md](./.github/ISSUE_TEMPLATE/alpha-release.md)** | Alpha release template | 4.7 KB | Release managers |
+| **[.github/ISSUE_TEMPLATE/beta-release.md](./.github/ISSUE_TEMPLATE/beta-release.md)** | Beta release template | 7.1 KB | Release managers |
 | **[scripts/create-github-issues.sh](./scripts/create-github-issues.sh)** | Automated issue creation | 14 KB | DevOps, automation |
 
-**Total Package:** 74.4 KB of comprehensive planning documentation
+**Total Package:** 106 KB of comprehensive planning documentation
 
 ---
 
@@ -41,9 +45,11 @@
 
 ### 👨‍💼 For Project Managers
 1. Read [Production Plan README](./PRODUCTION_PLAN_README.md) - Understand scope
-2. Review [GitHub Issues Quick Guide](./GITHUB_ISSUES_QUICK_GUIDE.md) - Set up tracking
-3. Run [create-github-issues.sh](./scripts/create-github-issues.sh) - Bulk create issues
-4. Monitor [Production Readiness Plan](./PRODUCTION_READINESS_PLAN.md) - Track progress
+2. Review [Release Schedule](./RELEASE_SCHEDULE.md) - Plan alpha/beta releases
+3. Review [GitHub Issues Quick Guide](./GITHUB_ISSUES_QUICK_GUIDE.md) - Set up tracking
+4. Read [CREATE_RELEASE_ISSUES.md](./CREATE_RELEASE_ISSUES.md) - Prepare releases
+5. Run [create-github-issues.sh](./scripts/create-github-issues.sh) - Bulk create issues
+6. Monitor [Production Readiness Plan](./PRODUCTION_READINESS_PLAN.md) - Track progress
 
 ### 👨‍💻 For Developers
 1. Read [Production Plan README](./PRODUCTION_PLAN_README.md) - Quick start
@@ -57,8 +63,17 @@
 
 ### 🧪 For QA Testers
 1. Review Phase 3 issues (#23-30)
-2. Focus on testing requirements
-3. Check acceptance criteria in each issue
+2. Check [Release Schedule](./RELEASE_SCHEDULE.md) for alpha/beta testing dates
+3. Use release templates to prepare test plans
+4. Focus on testing requirements
+5. Check acceptance criteria in each issue
+
+### 📦 For Release Managers
+1. Read [Release Schedule](./RELEASE_SCHEDULE.md) - Complete release timeline
+2. Review [CREATE_RELEASE_ISSUES.md](./CREATE_RELEASE_ISSUES.md) - Issue creation guide
+3. Use [Alpha Template](./.github/ISSUE_TEMPLATE/alpha-release.md) - Create alpha issue
+4. Use [Beta Template](./.github/ISSUE_TEMPLATE/beta-release.md) - Create beta issue
+5. Follow release checklists for each milestone
 
 ---
 
@@ -67,9 +82,12 @@
 | Phase | Duration | Start | End | Key Document |
 |-------|----------|-------|-----|--------------|
 | **Phase 1** | 2 weeks | Feb 11 | Feb 24 | [Issues #1-12](./PRODUCTION_READINESS_PLAN.md#phase-1-foundation-feb-11-24-2026) |
+| **Alpha Release** | 1 week | Feb 24 | Mar 3 | [Alpha Schedule](./RELEASE_SCHEDULE.md#alpha-release-v010-alpha) |
 | **Phase 2** | 2 weeks | Feb 25 | Mar 10 | [Issues #13-22](./PRODUCTION_READINESS_PLAN.md#phase-2-features-feb-25---mar-10-2026) |
 | **Phase 3** | 2 weeks | Mar 11 | Mar 24 | [Issues #23-30](./PRODUCTION_READINESS_PLAN.md#phase-3-polish-mar-11-24-2026) |
+| **Beta Releases** | 2 weeks | Mar 11 | Mar 24 | [Beta Schedule](./RELEASE_SCHEDULE.md#beta-release-v020-beta) |
 | **Phase 4** | 1 week | Mar 25 | Mar 31 | [Issues #31-35](./PRODUCTION_READINESS_PLAN.md#phase-4-launch-mar-25-31-2026) |
+| **Production** | Launch | Mar 31 | - | [Launch Day](./RELEASE_SCHEDULE.md#production-launch-v100) |
 
 ---
 
@@ -253,6 +271,6 @@ Monitor progress through:
 
 ---
 
-**Last Updated:** February 11, 2026  
-**Version:** 1.0  
+**Last Updated:** February 12, 2026  
+**Version:** 1.1  
 **Maintained By:** Ray-Clock Development Team
