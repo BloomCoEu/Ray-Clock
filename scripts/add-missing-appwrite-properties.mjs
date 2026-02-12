@@ -106,7 +106,7 @@ const collections = [
   },
 ];
 
-const formatDefault = (value) => {
+const formatDefaultValue = (value) => {
   if (value === undefined) {
     return '';
   }
@@ -158,23 +158,30 @@ const ensureCollectionAttributes = async (collection) => {
     collection.id
   );
 
-  const existingAttributes = new Set(
+  const existingAttributeKeys = new Set(
     (attributeList.attributes || []).map((attribute) => attribute.key)
   );
 
   for (const attribute of collection.attributes) {
-    if (existingAttributes.has(attribute.key)) {
+    if (existingAttributeKeys.has(attribute.key)) {
       console.log(`✅ ${collection.name}.${attribute.key} already exists`);
       continue;
     }
 
     console.log(
-      `➕ Creating ${collection.name}.${attribute.key}${formatDefault(
+      `➕ Creating ${collection.name}.${attribute.key}${formatDefaultValue(
         attribute.default
       )}`
     );
 
-    await createAttribute(collection.id, attribute);
+    try {
+      await createAttribute(collection.id, attribute);
+    } catch (error) {
+      console.error(
+        `❌ Failed to create ${collection.name}.${attribute.key}. Check API key permissions and collection access.`
+      );
+      throw error;
+    }
   }
 };
 
@@ -187,7 +194,14 @@ const run = async () => {
     console.log('\n🎉 Appwrite schema check complete.');
   } catch (error) {
     console.error('\n❌ Failed to add missing Appwrite properties.');
-    console.error(error);
+    if (error instanceof Error) {
+      console.error(`Details: ${error.message}`);
+    } else {
+      console.error(error);
+    }
+    console.error(
+      'Verify the API key permissions, network connectivity, and collection IDs.'
+    );
     process.exitCode = 1;
   }
 };
