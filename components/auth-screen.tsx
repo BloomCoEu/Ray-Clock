@@ -124,22 +124,23 @@ export function AuthScreen({ onLoginSuccess }: AuthScreenProps) {
               disabled={isLoading}
               opacity={isLoading ? 0.6 : 1}
               marginTop="$2"
-              fontWeight="600"
-              fontSize="$5"
             >
-              {isLoading ? 'Loading...' : isLogin ? 'Log In' : 'Sign Up'}
+              <Text color="white" fontWeight="600" fontSize="$5">
+                {isLoading ? 'Loading...' : isLogin ? 'Log In' : 'Sign Up'}
+              </Text>
             </Button>
 
             <Button
               size="$3"
               backgroundColor="transparent"
-              color="$green10"
               onPress={() => setIsLogin(!isLogin)}
               marginTop="$4"
             >
-              {isLogin
-                ? "Don't have an account? Sign up"
-                : 'Already have an account? Log in'}
+              <Text color="$green10">
+                {isLogin
+                  ? "Don't have an account? Sign up"
+                  : 'Already have an account? Log in'}
+              </Text>
             </Button>
           </YStack>
 

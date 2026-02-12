@@ -24,13 +24,10 @@ export function TimerControls({
           borderWidth={2}
           borderColor={accentColor}
           backgroundColor="transparent"
-          color={accentColor}
           minWidth={80}
           onPress={() => onAdjustTime(-5 * 60)}
-          fontWeight="600"
-          fontSize="$5"
         >
-          -5m
+          <Text color={accentColor} fontWeight="600" fontSize="$5">-5m</Text>
         </Button>
         
         <Button
@@ -38,13 +35,10 @@ export function TimerControls({
           borderWidth={2}
           borderColor={accentColor}
           backgroundColor="transparent"
-          color={accentColor}
           minWidth={80}
           onPress={() => onAdjustTime(5 * 60)}
-          fontWeight="600"
-          fontSize="$5"
         >
-          +5m
+          <Text color={accentColor} fontWeight="600" fontSize="$5">+5m</Text>
         </Button>
       </XStack>
 
@@ -70,9 +64,8 @@ export function TimerControls({
         backgroundColor="transparent"
         onPress={onSkip}
         icon={<Ionicons name="play-skip-forward" size={24} color="#666" />}
-        color="#666"
       >
-        Skip Task
+        <Text color="#666">Skip Task</Text>
       </Button>
     </YStack>
   );

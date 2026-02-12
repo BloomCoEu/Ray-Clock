@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   Modal,
   ScrollView,
-  TextInput,
 } from 'react-native';
 import { YStack, XStack, Text, Button, Input } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
@@ -152,10 +151,10 @@ export function TaskModal({ visible, task, onClose, onSave, accentColor }: TaskM
               size="$5"
               backgroundColor={accentColor}
               onPress={handleSave}
-              fontWeight="600"
-              fontSize="$5"
             >
-              {task ? 'Update Task' : 'Create Task'}
+              <Text color="white" fontWeight="600" fontSize="$5">
+                {task ? 'Update Task' : 'Create Task'}
+              </Text>
             </Button>
           </YStack>
         </YStack>

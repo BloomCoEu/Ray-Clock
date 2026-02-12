@@ -34,7 +34,7 @@ export default function RootLayout() {
   if (authLoading) {
     // Show loading screen while checking auth
     return (
-      <TamaguiProvider config={config}>
+      <TamaguiProvider config={config} defaultTheme="light">
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <View flex={1} justifyContent="center" alignItems="center">
             <ActivityIndicator size="large" color={colorScheme === 'dark' ? '#fff' : '#000'} />
@@ -47,14 +47,14 @@ export default function RootLayout() {
 
   if (showAuth) {
     return (
-      <TamaguiProvider config={config}>
+      <TamaguiProvider config={config} defaultTheme="light">
         <AuthScreen onLoginSuccess={() => setShowAuth(false)} />
       </TamaguiProvider>
     );
   }
 
   return (
-    <TamaguiProvider config={config}>
+    <TamaguiProvider config={config} defaultTheme="light">
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

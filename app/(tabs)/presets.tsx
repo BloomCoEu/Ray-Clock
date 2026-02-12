@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, Modal, TextInput, Alert } from 'react-native';
+import { ScrollView, Modal, TextInput, Alert, FlatList } from 'react-native';
 import { useState, useEffect } from 'react';
+import { YStack, XStack, Text, Button } from 'tamagui';
 import { useAppStore } from '@/lib/store';
 import { presetService, taskService } from '@/lib/appwrite-service';
 import { Ionicons } from '@expo/vector-icons';
@@ -119,82 +120,109 @@ export default function PresetsScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Preset Lists</Text>
-      <Text style={styles.description}>
-        Presets are templates you can import into your main list. Use for repeatable sets of tasks and routines.
-      </Text>
+    <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <YStack paddingHorizontal="$4" paddingTop="$4">
+        <Text fontSize={28} fontWeight="700" marginBottom="$2" marginTop="$4">
+          Preset Lists
+        </Text>
+        <Text fontSize="$3" color="$gray10" lineHeight={20} marginBottom="$5">
+          Presets are templates you can import into your main list. Use for repeatable sets of tasks and routines.
+        </Text>
 
-      <TouchableOpacity
-        style={[styles.createButton, { backgroundColor: accentColor }]}
-        onPress={() => setShowModal(true)}
-      >
-        <Ionicons name="add" size={24} color="white" />
-        <Text style={styles.createButtonText}>Create Preset</Text>
-      </TouchableOpacity>
+        <Button
+          backgroundColor={accentColor}
+          onPress={() => setShowModal(true)}
+          paddingVertical="$3"
+          marginBottom="$5"
+          icon={<Ionicons name="add" size={24} color="white" />}
+        >
+          <Text color="white" fontSize="$4" fontWeight="600">Create Preset</Text>
+        </Button>
 
-      <FlatList
-        data={presets}
-        renderItem={({ item }) => {
-          const totalTime = calculateTotalTime(item.tasks);
-          return (
-            <View style={[styles.presetCard, { borderLeftColor: accentColor }]}>
-              <View style={styles.presetHeader}>
-                <View>
-                  <Text style={styles.presetEmoji}>{item.emoji || '📝'}</Text>
-                </View>
-                <View style={styles.presetInfo}>
-                  <Text style={styles.presetName}>{item.name}</Text>
-                  <Text style={styles.presetStats}>
-                    {item.tasks.length} tasks • {totalTime}m total
-                  </Text>
-                </View>
-              </View>
+        <FlatList
+          data={presets}
+          renderItem={({ item }) => {
+            const totalTime = calculateTotalTime(item.tasks);
+            return (
+              <YStack
+                borderLeftWidth={4}
+                borderLeftColor={accentColor}
+                paddingLeft="$3"
+                paddingVertical="$3"
+                marginBottom="$3"
+                backgroundColor="$gray2"
+                borderRadius="$3"
+                paddingRight="$3"
+              >
+                <XStack alignItems="center" marginBottom="$3">
+                  <Text fontSize={32} marginRight="$3">{item.emoji || '📝'}</Text>
+                  <YStack flex={1}>
+                    <Text fontSize="$4" fontWeight="600" marginBottom={2}>
+                      {item.name}
+                    </Text>
+                    <Text fontSize="$2" color="$gray10">
+                      {item.tasks.length} tasks • {totalTime}m total
+                    </Text>
+                  </YStack>
+                </XStack>
 
-              <View style={styles.presetActions}>
-                <TouchableOpacity
-                  style={[styles.actionButton, { borderColor: accentColor }]}
-                  onPress={() => handleLoadPreset(item)}
-                >
-                  <Text style={[styles.actionText, { color: accentColor }]}>Load</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.actionButton, { borderColor: accentColor }]}
-                  onPress={() => handleDuplicatePreset(item.$id)}
-                >
-                  <Text style={[styles.actionText, { color: accentColor }]}>Duplicate</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.actionButton, { borderColor: '#ef4444' }]}
-                  onPress={() =>
-                    Alert.alert(
-                      'Delete Preset',
-                      'Are you sure?',
-                      [
-                        { text: 'Cancel' },
-                        {
-                          text: 'Delete',
-                          onPress: () => handleDeletePreset(item.$id),
-                          style: 'destructive',
-                        },
-                      ]
-                    )
-                  }
-                >
-                  <Ionicons name="trash-outline" size={20} color="#ef4444" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          );
-        }}
-        scrollEnabled={false}
-        keyExtractor={(item) => item.$id}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>No presets yet. Create one to get started!</Text>
-          </View>
-        }
-      />
+                <XStack gap="$2">
+                  <Button
+                    flex={1}
+                    paddingVertical="$2"
+                    borderWidth={2}
+                    borderColor={accentColor}
+                    backgroundColor="transparent"
+                    onPress={() => handleLoadPreset(item)}
+                  >
+                    <Text color={accentColor} fontSize="$2" fontWeight="600">Load</Text>
+                  </Button>
+                  <Button
+                    flex={1}
+                    paddingVertical="$2"
+                    borderWidth={2}
+                    borderColor={accentColor}
+                    backgroundColor="transparent"
+                    onPress={() => handleDuplicatePreset(item.$id)}
+                  >
+                    <Text color={accentColor} fontSize="$2" fontWeight="600">Duplicate</Text>
+                  </Button>
+                  <Button
+                    flex={1}
+                    paddingVertical="$2"
+                    borderWidth={2}
+                    borderColor="#ef4444"
+                    backgroundColor="transparent"
+                    onPress={() =>
+                      Alert.alert(
+                        'Delete Preset',
+                        'Are you sure?',
+                        [
+                          { text: 'Cancel' },
+                          {
+                            text: 'Delete',
+                            onPress: () => handleDeletePreset(item.$id),
+                            style: 'destructive',
+                          },
+                        ]
+                      )
+                    }
+                    icon={<Ionicons name="trash-outline" size={20} color="#ef4444" />}
+                  />
+                </XStack>
+              </YStack>
+            );
+          }}
+          scrollEnabled={false}
+          keyExtractor={(item) => item.$id}
+          ListEmptyComponent={
+            <YStack paddingVertical="$10" alignItems="center">
+              <Text fontSize="$3" color="$gray10">No presets yet. Create one to get started!</Text>
+            </YStack>
+          }
+        />
+
+      </YStack>
 
       <Modal
         visible={showModal}
@@ -202,175 +230,57 @@ export default function PresetsScreen() {
         transparent={true}
         onRequestClose={() => setShowModal(false)}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modal}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Create New Preset</Text>
-              <TouchableOpacity onPress={() => setShowModal(false)}>
-                <Ionicons name="close" size={24} color="#000" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.modalContent}>
-              <Text style={styles.label}>Preset Name</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter preset name"
-                value={presetName}
-                onChangeText={setPresetName}
-                placeholderTextColor="#999"
+        <YStack flex={1} justifyContent="flex-end" backgroundColor="rgba(0,0,0,0.5)">
+          <YStack
+            backgroundColor="white"
+            borderTopLeftRadius="$4"
+            borderTopRightRadius="$4"
+            paddingHorizontal="$4"
+            paddingTop="$5"
+            paddingBottom="$8"
+          >
+            <XStack justifyContent="space-between" alignItems="center" marginBottom="$5">
+              <Text fontSize="$6" fontWeight="600">Create New Preset</Text>
+              <Button
+                circular
+                size="$3"
+                backgroundColor="transparent"
+                onPress={() => setShowModal(false)}
+                icon={<Ionicons name="close" size={24} color="#000" />}
               />
+            </XStack>
 
-              <TouchableOpacity
-                style={[styles.submitButton, { backgroundColor: accentColor }]}
+            <YStack gap="$4">
+              <YStack gap="$2">
+                <Text fontSize="$3" fontWeight="600" marginBottom="$1">Preset Name</Text>
+                <TextInput
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e5e5e5',
+                    borderRadius: 8,
+                    paddingVertical: 10,
+                    paddingHorizontal: 12,
+                    fontSize: 16,
+                  }}
+                  placeholder="Enter preset name"
+                  value={presetName}
+                  onChangeText={setPresetName}
+                  placeholderTextColor="#999"
+                />
+              </YStack>
+
+              <Button
+                backgroundColor={accentColor}
                 onPress={handleCreatePreset}
                 disabled={isLoading}
+                opacity={isLoading ? 0.6 : 1}
               >
-                <Text style={styles.submitButtonText}>Create Preset</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
+                <Text color="white" fontSize="$4" fontWeight="600">Create Preset</Text>
+              </Button>
+            </YStack>
+          </YStack>
+        </YStack>
       </Modal>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 8,
-    marginTop: 16,
-  },
-  description: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
-    marginBottom: 20,
-  },
-  createButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    marginBottom: 20,
-    gap: 8,
-  },
-  createButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  presetCard: {
-    borderLeftWidth: 4,
-    paddingLeft: 12,
-    paddingVertical: 12,
-    marginBottom: 12,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 8,
-    paddingRight: 12,
-  },
-  presetHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  presetEmoji: {
-    fontSize: 32,
-    marginRight: 12,
-  },
-  presetInfo: {
-    flex: 1,
-  },
-  presetName: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  presetStats: {
-    fontSize: 12,
-    color: '#666',
-  },
-  presetActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  actionButton: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    borderWidth: 2,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  actionText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  emptyState: {
-    paddingVertical: 40,
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 14,
-    color: '#999',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modal: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 32,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-  },
-  modalContent: {
-    gap: 16,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#e5e5e5',
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    fontSize: 16,
-  },
-  submitButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  submitButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});

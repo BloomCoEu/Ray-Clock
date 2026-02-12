@@ -215,9 +215,8 @@ export default function HomeScreen() {
                 setShowTaskModal(true);
               }}
               icon={<Ionicons name="add" size={24} color="white" />}
-              fontWeight="600"
             >
-              Create First Task
+              <Text color="white" fontWeight="600">Create First Task</Text>
             </Button>
           </YStack>
         )}

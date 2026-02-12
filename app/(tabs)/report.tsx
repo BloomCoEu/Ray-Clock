@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, Alert } from 'react-native';
+import { ScrollView, FlatList, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
+import { YStack, XStack, Text, Button } from 'tamagui';
 import { useAppStore } from '@/lib/store';
 import { taskService } from '@/lib/appwrite-service';
 import * as types from '@/lib/types';
@@ -87,263 +88,197 @@ export default function ReportScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Report</Text>
+    <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <YStack paddingHorizontal="$4">
+        <Text fontSize={28} fontWeight="700" marginBottom="$5" marginTop="$4">Report</Text>
 
-      {/* Summary Cards */}
-      <View style={styles.summaryContainer}>
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryLabel}>Planned</Text>
-          <Text style={[styles.summaryValue, { color: accentColor }]}>
-            {formatTime(plannedTotal)}
-          </Text>
-        </View>
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryLabel}>Spent</Text>
-          <Text style={[styles.summaryValue, { color: accentColor }]}>
-            {formatTime(spentTotal)}
-          </Text>
-        </View>
-      </View>
+        {/* Summary Cards */}
+        <XStack gap="$3" marginBottom="$6">
+          <YStack
+            flex={1}
+            paddingVertical="$4"
+            paddingHorizontal="$3"
+            backgroundColor="$gray2"
+            borderRadius="$2"
+            alignItems="center"
+          >
+            <Text fontSize="$2" color="$gray10" marginBottom="$1">Planned</Text>
+            <Text fontSize="$6" fontWeight="700" color={accentColor}>
+              {formatTime(plannedTotal)}
+            </Text>
+          </YStack>
+          <YStack
+            flex={1}
+            paddingVertical="$4"
+            paddingHorizontal="$3"
+            backgroundColor="$gray2"
+            borderRadius="$2"
+            alignItems="center"
+          >
+            <Text fontSize="$2" color="$gray10" marginBottom="$1">Spent</Text>
+            <Text fontSize="$6" fontWeight="700" color={accentColor}>
+              {formatTime(spentTotal)}
+            </Text>
+          </YStack>
+        </XStack>
 
-      {/* Completed Section */}
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Completed ({completedTasks.length})</Text>
+        {/* Completed Section */}
+        <YStack marginBottom="$6">
+          <XStack justifyContent="space-between" alignItems="center" marginBottom="$3">
+            <Text fontSize="$5" fontWeight="600">Completed ({completedTasks.length})</Text>
+            {completedTasks.length > 0 && (
+              <Button
+                backgroundColor="transparent"
+                paddingHorizontal={0}
+                onPress={handleClearHistory}
+              >
+                <Text color={accentColor} fontSize="$3" fontWeight="600">Clear</Text>
+              </Button>
+            )}
+          </XStack>
+
+          <XStack
+            paddingVertical="$2"
+            paddingHorizontal="$2"
+            backgroundColor="$gray2"
+            borderRadius="$2"
+            marginBottom="$1"
+          >
+            <Text fontSize="$2" fontWeight="600" color="$gray10" flex={1}>Task</Text>
+            <Text fontSize="$2" fontWeight="600" color="$gray10" width={80}>Planned</Text>
+            <Text fontSize="$2" fontWeight="600" color="$gray10" width={80}>Spent</Text>
+          </XStack>
+
+          <FlatList
+            data={completedTasks}
+            renderItem={({ item }) => (
+              <XStack
+                paddingVertical="$2.5"
+                paddingHorizontal="$2"
+                borderBottomWidth={1}
+                borderBottomColor="$gray2"
+                alignItems="center"
+              >
+                <XStack flex={1} alignItems="center">
+                  <Text fontSize={18} marginRight="$2">{item.emoji || '📝'}</Text>
+                  <Text fontSize="$3" fontWeight="500" flex={1} numberOfLines={1}>
+                    {item.title}
+                  </Text>
+                </XStack>
+                <Text fontSize="$3" color="$gray10" width={80} textAlign="right">
+                  {item.plannedDuration}m
+                </Text>
+                <Text fontSize="$3" color="$gray10" width={80} textAlign="right">
+                  {item.actualDuration || 0}m
+                </Text>
+              </XStack>
+            )}
+            scrollEnabled={false}
+            keyExtractor={(item) => item.$id}
+            ListEmptyComponent={
+              <Text fontSize="$3" color="$gray10" paddingVertical="$4" textAlign="center">
+                No completed tasks
+              </Text>
+            }
+          />
+
           {completedTasks.length > 0 && (
-            <TouchableOpacity onPress={handleClearHistory}>
-              <Text style={[styles.clearButton, { color: accentColor }]}>Clear</Text>
-            </TouchableOpacity>
+            <XStack
+              paddingVertical="$3"
+              paddingHorizontal="$2"
+              backgroundColor="$gray2"
+              borderRadius="$2"
+              marginTop="$2"
+              alignItems="center"
+            >
+              <Text fontSize="$3" fontWeight="600" flex={1}>Total</Text>
+              <Text fontSize="$3" fontWeight="600" color="$gray12" width={80} textAlign="right">
+                {plannedCompleted}m
+              </Text>
+              <Text fontSize="$3" fontWeight="600" color="$gray12" width={80} textAlign="right">
+                {spentCompleted}m
+              </Text>
+            </XStack>
           )}
-        </View>
+        </YStack>
 
-        <View style={styles.tableHeader}>
-          <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Task</Text>
-          <Text style={[styles.tableHeaderCell, { width: 80 }]}>Planned</Text>
-          <Text style={[styles.tableHeaderCell, { width: 80 }]}>Spent</Text>
-        </View>
+        {/* Remaining Section */}
+        <YStack marginBottom="$6">
+          <Text fontSize="$5" fontWeight="600" marginBottom="$3">
+            Remaining ({remainingTasks.length})
+          </Text>
 
-        <FlatList
-          data={completedTasks}
-          renderItem={({ item }) => (
-            <View style={styles.tableRow}>
-              <View style={{ flex: 1 }}>
-                <View style={styles.taskNameContainer}>
-                  <Text style={styles.emoji}>{item.emoji || '📝'}</Text>
-                  <Text style={styles.taskName} numberOfLines={1}>
+          <XStack
+            paddingVertical="$2"
+            paddingHorizontal="$2"
+            backgroundColor="$gray2"
+            borderRadius="$2"
+            marginBottom="$1"
+          >
+            <Text fontSize="$2" fontWeight="600" color="$gray10" flex={1}>Task</Text>
+            <Text fontSize="$2" fontWeight="600" color="$gray10" width={100}>Planned</Text>
+            <Text fontSize="$2" fontWeight="600" color="$gray10" width={100}>Spent</Text>
+          </XStack>
+
+          <FlatList
+            data={remainingTasks}
+            renderItem={({ item }) => (
+              <XStack
+                paddingVertical="$2.5"
+                paddingHorizontal="$2"
+                borderBottomWidth={1}
+                borderBottomColor="$gray2"
+                alignItems="center"
+              >
+                <XStack flex={1} alignItems="center">
+                  <Text fontSize={18} marginRight="$2">{item.emoji || '📝'}</Text>
+                  <Text fontSize="$3" fontWeight="500" flex={1} numberOfLines={1}>
                     {item.title}
                   </Text>
-                </View>
-              </View>
-              <Text style={[styles.tableCell, { width: 80 }]}>
-                {item.plannedDuration}m
+                </XStack>
+                <Text fontSize="$3" color="$gray10" width={100} textAlign="right">
+                  {item.plannedDuration}m
+                </Text>
+                <Text fontSize="$3" color="$gray10" width={100} textAlign="right">
+                  {item.actualDuration || 0}m
+                </Text>
+              </XStack>
+            )}
+            scrollEnabled={false}
+            keyExtractor={(item) => item.$id}
+            ListEmptyComponent={
+              <Text fontSize="$3" color="$gray10" paddingVertical="$4" textAlign="center">
+                No remaining tasks
               </Text>
-              <Text style={[styles.tableCell, { width: 80 }]}>
-                {item.actualDuration || 0}m
+            }
+          />
+
+          {remainingTasks.length > 0 && (
+            <XStack
+              paddingVertical="$3"
+              paddingHorizontal="$2"
+              backgroundColor="$gray2"
+              borderRadius="$2"
+              marginTop="$2"
+              alignItems="center"
+            >
+              <Text fontSize="$3" fontWeight="600" flex={1}>Total</Text>
+              <Text fontSize="$3" fontWeight="600" color="$gray12" width={100} textAlign="right">
+                {plannedRemaining}m
               </Text>
-            </View>
+              <Text fontSize="$3" fontWeight="600" color="$gray12" width={100} textAlign="right">
+                {spentRemaining}m
+              </Text>
+            </XStack>
           )}
-          scrollEnabled={false}
-          keyExtractor={(item) => item.$id}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>No completed tasks</Text>
-          }
-        />
+        </YStack>
 
-        {completedTasks.length > 0 && (
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryRowLabel}>Total</Text>
-            <Text style={[styles.summaryRowValue, { width: 80 }]}>
-              {plannedCompleted}m
-            </Text>
-            <Text style={[styles.summaryRowValue, { width: 80 }]}>
-              {spentCompleted}m
-            </Text>
-          </View>
-        )}
-      </View>
-
-      {/* Remaining Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Remaining ({remainingTasks.length})</Text>
-
-        <View style={styles.tableHeader}>
-          <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Task</Text>
-          <Text style={[styles.tableHeaderCell, { width: 100 }]}>Planned</Text>
-          <Text style={[styles.tableHeaderCell, { width: 100 }]}>Spent</Text>
-        </View>
-
-        <FlatList
-          data={remainingTasks}
-          renderItem={({ item }) => (
-            <View style={styles.tableRow}>
-              <View style={{ flex: 1 }}>
-                <View style={styles.taskNameContainer}>
-                  <Text style={styles.emoji}>{item.emoji || '📝'}</Text>
-                  <Text style={styles.taskName} numberOfLines={1}>
-                    {item.title}
-                  </Text>
-                </View>
-              </View>
-              <Text style={[styles.tableCell, { width: 100 }]}>
-                {item.plannedDuration}m
-              </Text>
-              <Text style={[styles.tableCell, { width: 100 }]}>
-                {item.actualDuration || 0}m
-              </Text>
-            </View>
-          )}
-          scrollEnabled={false}
-          keyExtractor={(item) => item.$id}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>No remaining tasks</Text>
-          }
-        />
-
-        {remainingTasks.length > 0 && (
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryRowLabel}>Total</Text>
-            <Text style={[styles.summaryRowValue, { width: 100 }]}>
-              {plannedRemaining}m
-            </Text>
-            <Text style={[styles.summaryRowValue, { width: 100 }]}>
-              {spentRemaining}m
-            </Text>
-          </View>
-        )}
-      </View>
-
-      <Text style={styles.disclaimer}>
-        * Numbers may be slightly different due to rounding{'\n'}
-        * The Report shows a summary of the tasks on your Main List (including completed items
-        that are hidden)
-      </Text>
+        <Text fontSize="$2" color="$gray10" lineHeight={18} marginVertical="$5" fontStyle="italic">
+          * Numbers may be slightly different due to rounding{'\n'}
+          * The Report shows a summary of the tasks on your Main List (including completed items
+          that are hidden)
+        </Text>
+      </YStack>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 20,
-    marginTop: 16,
-  },
-  summaryContainer: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 24,
-  },
-  summaryCard: {
-    flex: 1,
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  summaryLabel: {
-    fontSize: 12,
-    color: '#999',
-    marginBottom: 4,
-  },
-  summaryValue: {
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  clearButton: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  tableHeader: {
-    flexDirection: 'row',
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 6,
-    marginBottom: 4,
-  },
-  tableHeaderCell: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#666',
-  },
-  tableRow: {
-    flexDirection: 'row',
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    alignItems: 'center',
-  },
-  taskNameContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  emoji: {
-    fontSize: 18,
-    marginRight: 8,
-  },
-  taskName: {
-    fontSize: 14,
-    fontWeight: '500',
-    flex: 1,
-  },
-  tableCell: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'right',
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 6,
-    marginTop: 8,
-    alignItems: 'center',
-    fontWeight: '600',
-  },
-  summaryRowLabel: {
-    flex: 1,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  summaryRowValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    textAlign: 'right',
-  },
-  emptyText: {
-    paddingVertical: 16,
-    textAlign: 'center',
-    color: '#999',
-    fontSize: 14,
-  },
-  disclaimer: {
-    fontSize: 12,
-    color: '#999',
-    lineHeight: 18,
-    marginVertical: 20,
-    fontStyle: 'italic',
-  },
-});
