@@ -66,27 +66,15 @@ See [APPWRITE_SETUP.md](./APPWRITE_SETUP.md) for detailed instructions.
 
 ## Todoist Integration (Optional)
 
-To enable Todoist integration:
+To enable Todoist integration and import your tasks, see the detailed [Todoist Integration Guide](./TODOIST_INTEGRATION.md).
 
-1. **Get your Todoist API key**
-   - Log in to Todoist
-   - Go to Settings → Integrations → Developer
-   - Copy your API token
+**Quick setup:**
+1. Get your API key from Todoist Settings → Integrations → Developer
+2. Open Ray Clock → Settings → Todoist Integration
+3. Enter your API key and enable sync
+4. Click "Sync Now" to import tasks
 
-2. **Configure in Ray Clock**
-   - Open Ray Clock app
-   - Go to Settings tab
-   - Scroll to "Todoist Integration" section
-   - Paste your API key
-   - Click "Save API Key"
-   - Enable "Enable Todoist Sync" toggle
-
-3. **Sync tasks**
-   - Click "Sync Now" button to import tasks from Todoist
-   - Tasks will be imported with their titles, durations, and descriptions
-   - Only active (incomplete) tasks are synced
-
-**Note**: Currently, sync is one-way from Todoist to Ray Clock. Tasks created in Ray Clock won't automatically sync back to Todoist.
+For detailed instructions, troubleshooting, and best practices, see [TODOIST_INTEGRATION.md](./TODOIST_INTEGRATION.md).
 
 ## Project Structure
 
