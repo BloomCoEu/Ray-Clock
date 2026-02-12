@@ -13,6 +13,7 @@ import {
 import { useAuth } from '@/hooks/use-auth';
 import { appwriteConfig } from '@/lib/appwrite-service';
 import { useAppStore } from '@/lib/store';
+import type { Settings, User } from '@/lib/types';
 
 interface AuthScreenProps {
   onLoginSuccess: () => void;
@@ -68,20 +69,21 @@ export function AuthScreen({ onLoginSuccess }: AuthScreenProps) {
   };
 
   const handlePreview = () => {
-    const demoUser = {
+    const demoUser: User = {
       $id: 'demo-user',
-      email: 'demo@rayclock.app',
+      email: 'demo@example.com',
       name: 'Demo User',
     };
-    setUser(demoUser as any);
-    setSettings({
+    const demoSettings: Settings = {
       userId: demoUser.$id,
       defaultTime: 15,
       accentColor: '#10B981',
       theme: 'auto',
       smartTimeDetection: true,
       pieTimerEnabled: false,
-    });
+    };
+    setUser(demoUser);
+    setSettings(demoSettings);
     onLoginSuccess();
   };
 

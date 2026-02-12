@@ -4,6 +4,30 @@ import { useAppStore } from '@/lib/store';
 import { taskService } from '@/lib/appwrite-service';
 import * as types from '@/lib/types';
 
+const PACE_THRESHOLD_MINUTES = 5;
+const DEFAULT_PLANNING_START_HOUR = 9;
+const DEFAULT_PLANNING_END_HOUR = 18;
+const DEFAULT_TASK_EMOJI = '📝';
+
+const calculateScheduleStart = (planningStartHour: number, planningEndHour: number) => {
+  const now = new Date();
+  now.setSeconds(0, 0);
+  const hour = now.getHours();
+  if (hour >= planningEndHour) {
+    const nextDay = new Date(now);
+    nextDay.setDate(nextDay.getDate() + 1);
+    nextDay.setHours(planningStartHour, 0, 0, 0);
+    return nextDay;
+  }
+  if (hour < planningStartHour) {
+    const todayStart = new Date(now);
+    todayStart.setHours(planningStartHour, 0, 0, 0);
+    return todayStart;
+  }
+  now.setHours(hour, now.getMinutes(), 0, 0);
+  return now;
+};
+
 export default function ReportScreen() {
   const user = useAppStore((state) => state.user);
   const tasks = useAppStore((state) => state.tasks);
@@ -66,33 +90,42 @@ export default function ReportScreen() {
   };
 
   const remainingTasks = tasks.filter((t) => !t.completed);
+  const remainingPlannedTasks = remainingTasks.filter((task) => task.plannedDuration > 0);
   const plannedCompleted = calculatePlannedTime(completedTasks);
   const spentCompleted = calculateSpentTime(completedTasks);
   const plannedRemaining = calculatePlannedTime(remainingTasks);
   const spentRemaining = calculateSpentTime(remainingTasks);
   const plannedTotal = plannedCompleted + plannedRemaining;
   const spentTotal = spentCompleted + spentRemaining;
-  const completionRate = plannedTotal > 0 ? Math.round((plannedCompleted / plannedTotal) * 100) : 0;
+  const completionRate =
+    plannedTotal > 0
+      ? Math.round((plannedCompleted / plannedTotal) * 100)
+      : plannedCompleted > 0
+        ? 100
+        : 0;
   const paceDelta = spentCompleted - plannedCompleted;
-  const paceLabel = paceDelta > 5 ? 'Over plan' : paceDelta < -5 ? 'Ahead' : 'On track';
+  const paceLabel =
+    paceDelta > PACE_THRESHOLD_MINUTES
+      ? 'Over plan'
+      : paceDelta < -PACE_THRESHOLD_MINUTES
+        ? 'Ahead'
+        : 'On track';
   const paceDetail = paceDelta === 0 ? 'Even with plan' : `${formatVariance(paceDelta)} vs plan`;
-  const averageBlock = tasks.length > 0 ? Math.round(plannedTotal / tasks.length) : 0;
-  const scheduleStart = new Date();
-  scheduleStart.setSeconds(0, 0);
-  const planningStartHour = 9;
-  const planningEndHour = 18;
-  if (scheduleStart.getHours() >= planningEndHour) {
-    scheduleStart.setDate(scheduleStart.getDate() + 1);
-    scheduleStart.setHours(planningStartHour, 0, 0, 0);
-  } else if (scheduleStart.getHours() < planningStartHour) {
-    scheduleStart.setHours(planningStartHour, 0, 0, 0);
-  }
+  const averageBlock =
+    remainingPlannedTasks.length > 0
+      ? Math.round(plannedRemaining / remainingPlannedTasks.length)
+      : 0;
+  const scheduleStart = calculateScheduleStart(
+    DEFAULT_PLANNING_START_HOUR,
+    DEFAULT_PLANNING_END_HOUR
+  );
   let cumulativeMinutes = 0;
-  const scheduleItems = remainingTasks.map((task) => {
+  const scheduleItems = remainingTasks.map((task, index) => {
     const start = new Date(scheduleStart.getTime() + cumulativeMinutes * 60000);
     cumulativeMinutes += task.plannedDuration;
     const end = new Date(scheduleStart.getTime() + cumulativeMinutes * 60000);
-    return { task, start, end };
+    const key = task.$id ?? `task-${index}`;
+    return { task, start, end, key };
   });
   const projectedFinish =
     plannedRemaining > 0
@@ -167,19 +200,19 @@ export default function ReportScreen() {
           <View style={styles.planCard}>
             <Text style={styles.planLabel}>Avg Block</Text>
             <Text style={[styles.planValue, { color: accentColor }]}>{formatTime(averageBlock)}</Text>
-            <Text style={styles.planSubvalue}>{tasks.length} tasks today</Text>
+            <Text style={styles.planSubvalue}>{remainingTasks.length} remaining</Text>
           </View>
         </View>
         <View style={styles.timelineContainer}>
           <Text style={styles.timelineTitle}>Planned Timeline</Text>
           {scheduleItems.length > 0 ? (
-            scheduleItems.map(({ task, start, end }, index) => (
-              <View style={styles.timelineRow} key={task.$id ?? `${task.title}-${index}`}>
+            scheduleItems.map(({ task, start, end, key }) => (
+              <View style={styles.timelineRow} key={key}>
                 <Text style={styles.timelineTime}>
                   {formatClockTime(start)} - {formatClockTime(end)}
                 </Text>
                 <Text style={styles.timelineTask} numberOfLines={1}>
-                  {(task.emoji || '📝') + ' ' + task.title}
+                  {`${task.emoji || DEFAULT_TASK_EMOJI} ${task.title}`}
                 </Text>
                 <Text style={styles.timelineDuration}>{formatTime(task.plannedDuration)}</Text>
               </View>
@@ -347,7 +380,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   planCard: {
-    width: '48%',
+    flexBasis: '48%',
+    flexGrow: 1,
+    minWidth: 160,
     backgroundColor: '#f8f8f8',
     borderRadius: 8,
     paddingVertical: 12,
