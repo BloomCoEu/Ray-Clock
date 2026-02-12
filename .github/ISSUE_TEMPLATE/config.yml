@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/BloomCoEu/Ray-Clock/blob/main/README.md
+    about: Check the README and documentation for setup help
+  - name: 🗺️ Production Roadmap
+    url: https://github.com/BloomCoEu/Ray-Clock/blob/main/PRODUCTION_READINESS_PLAN.md
+    about: View the complete production readiness plan
+  - name: 💬 General Discussion
+    url: https://github.com/BloomCoEu/Ray-Clock/discussions
+    about: Ask questions and discuss ideas with the community

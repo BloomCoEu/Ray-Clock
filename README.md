@@ -149,8 +149,22 @@ Ray-Clock/
 
 - **expo-av dependency**: Audio feedback has been temporarily disabled to avoid Metro bundler issues in Codespace environments. Users can re-enable it after resolving the dependency issue.
 
-## Roadmap
+## Roadmap & Release Schedule
 
+### Q1 2026 Production Launch Plan
+Ray-Clock is on track for production release by **March 31, 2026**. See our detailed release schedule:
+
+- **📅 Feb 24-Mar 3:** [Alpha Release](./RELEASE_SCHEDULE.md#alpha-release-v010-alpha) (v0.1.0-alpha) - Internal testing
+- **📅 Mar 11-17:** [Beta 1 Release](./RELEASE_SCHEDULE.md#beta-1-v020-beta1---march-11-17) (v0.2.0-beta.1) - External testing
+- **📅 Mar 18-24:** [Beta 2 Release](./RELEASE_SCHEDULE.md#beta-2-v020-beta2---march-18-24) (v0.2.0-beta.2) - Final testing
+- **🚀 Mar 31:** Production Launch (v1.0.0)
+
+For complete details, see:
+- [Release Schedule](./RELEASE_SCHEDULE.md) - Alpha and beta release timeline
+- [Production Readiness Plan](./PRODUCTION_READINESS_PLAN.md) - Complete 7-week roadmap
+- [GitHub Issues Quick Guide](./GITHUB_ISSUES_QUICK_GUIDE.md) - Issue management
+
+### Future Roadmap (Post-Launch)
 - [ ] Push notifications for task reminders
 - [ ] Android platform testing and optimization
 - [ ] Physical device testing via Expo Tunnel
