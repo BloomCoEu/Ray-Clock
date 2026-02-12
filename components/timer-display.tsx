@@ -31,7 +31,6 @@ export function TimerDisplay({ time, taskName, taskEmoji, isRunning, accentColor
         fontWeight="700" 
         marginBottom="$2" 
         color={accentColor}
-        fontFamily="$mono"
       >
         {formatTime(time)}
       </Text>
