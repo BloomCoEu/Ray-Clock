@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useAuth } from '@/hooks/use-auth';
 import { appwriteConfig } from '@/lib/appwrite-service';
+import { useAppStore } from '@/lib/store';
 
 interface AuthScreenProps {
   onLoginSuccess: () => void;
@@ -24,6 +25,8 @@ export function AuthScreen({ onLoginSuccess }: AuthScreenProps) {
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login, signup } = useAuth();
+  const setUser = useAppStore((state) => state.setUser);
+  const setSettings = useAppStore((state) => state.setSettings);
 
   const handleSubmit = async () => {
     if (!appwriteConfig.isValid) {
@@ -62,6 +65,24 @@ export function AuthScreen({ onLoginSuccess }: AuthScreenProps) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handlePreview = () => {
+    const demoUser = {
+      $id: 'demo-user',
+      email: 'demo@rayclock.app',
+      name: 'Demo User',
+    };
+    setUser(demoUser as any);
+    setSettings({
+      userId: demoUser.$id,
+      defaultTime: 15,
+      accentColor: '#10B981',
+      theme: 'auto',
+      smartTimeDetection: true,
+      pieTimerEnabled: false,
+    });
+    onLoginSuccess();
   };
 
   return (
@@ -144,6 +165,11 @@ export function AuthScreen({ onLoginSuccess }: AuthScreenProps) {
                   {appwriteConfig.missingKeys.join(', ')}
                 </Text>
               </View>
+            )}
+            {!appwriteConfig.isValid && (
+              <TouchableOpacity style={styles.previewButton} onPress={handlePreview}>
+                <Text style={styles.previewButtonText}>Continue in demo mode</Text>
+              </TouchableOpacity>
             )}
             <Text style={styles.footerText}>
               Note: You need to configure Appwrite first
@@ -230,6 +256,19 @@ const styles = StyleSheet.create({
   },
   footer: {
     alignItems: 'center',
+  },
+  previewButton: {
+    borderWidth: 1,
+    borderColor: '#10B981',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginBottom: 12,
+  },
+  previewButtonText: {
+    color: '#10B981',
+    fontSize: 14,
+    fontWeight: '600',
   },
   configWarning: {
     backgroundColor: '#FEF3C7',

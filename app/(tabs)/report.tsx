@@ -53,6 +53,18 @@ export default function ReportScreen() {
     return `${mins}m`;
   };
 
+  const formatVariance = (minutes: number) => {
+    if (minutes === 0) {
+      return '0m';
+    }
+    const sign = minutes > 0 ? '+' : '-';
+    return `${sign}${formatTime(Math.abs(minutes))}`;
+  };
+
+  const formatClockTime = (date: Date) => {
+    return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  };
+
   const remainingTasks = tasks.filter((t) => !t.completed);
   const plannedCompleted = calculatePlannedTime(completedTasks);
   const spentCompleted = calculateSpentTime(completedTasks);
@@ -60,6 +72,24 @@ export default function ReportScreen() {
   const spentRemaining = calculateSpentTime(remainingTasks);
   const plannedTotal = plannedCompleted + plannedRemaining;
   const spentTotal = spentCompleted + spentRemaining;
+  const completionRate = plannedTotal > 0 ? Math.round((plannedCompleted / plannedTotal) * 100) : 0;
+  const paceDelta = spentCompleted - plannedCompleted;
+  const paceLabel = paceDelta > 5 ? 'Over plan' : paceDelta < -5 ? 'Ahead' : 'On track';
+  const paceDetail = paceDelta === 0 ? 'Even with plan' : `${formatVariance(paceDelta)} vs plan`;
+  const averageBlock = tasks.length > 0 ? Math.round(plannedTotal / tasks.length) : 0;
+  const scheduleStart = new Date();
+  scheduleStart.setSeconds(0, 0);
+  let cumulativeMinutes = 0;
+  const scheduleItems = remainingTasks.map((task) => {
+    const start = new Date(scheduleStart.getTime() + cumulativeMinutes * 60000);
+    cumulativeMinutes += task.plannedDuration;
+    const end = new Date(scheduleStart.getTime() + cumulativeMinutes * 60000);
+    return { task, start, end };
+  });
+  const projectedFinish =
+    plannedRemaining > 0
+      ? formatClockTime(new Date(scheduleStart.getTime() + plannedRemaining * 60000))
+      : 'Complete';
 
   const handleClearHistory = () => {
     Alert.alert(
@@ -103,6 +133,52 @@ export default function ReportScreen() {
           <Text style={[styles.summaryValue, { color: accentColor }]}>
             {formatTime(spentTotal)}
           </Text>
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Day Plan</Text>
+        <View style={styles.planGrid}>
+          <View style={styles.planCard}>
+            <Text style={styles.planLabel}>Completion</Text>
+            <Text style={[styles.planValue, { color: accentColor }]}>{completionRate}%</Text>
+            <Text style={styles.planSubvalue}>
+              {formatTime(plannedCompleted)} of {formatTime(plannedTotal)}
+            </Text>
+          </View>
+          <View style={styles.planCard}>
+            <Text style={styles.planLabel}>Pace</Text>
+            <Text style={[styles.planValue, { color: accentColor }]}>{paceLabel}</Text>
+            <Text style={styles.planSubvalue}>{paceDetail}</Text>
+          </View>
+          <View style={styles.planCard}>
+            <Text style={styles.planLabel}>Projected Finish</Text>
+            <Text style={[styles.planValue, { color: accentColor }]}>{projectedFinish}</Text>
+            <Text style={styles.planSubvalue}>Remaining {formatTime(plannedRemaining)}</Text>
+          </View>
+          <View style={styles.planCard}>
+            <Text style={styles.planLabel}>Avg Block</Text>
+            <Text style={[styles.planValue, { color: accentColor }]}>{formatTime(averageBlock)}</Text>
+            <Text style={styles.planSubvalue}>{tasks.length} tasks today</Text>
+          </View>
+        </View>
+        <View style={styles.timelineContainer}>
+          <Text style={styles.timelineTitle}>Planned Timeline</Text>
+          {scheduleItems.length > 0 ? (
+            scheduleItems.map(({ task, start, end }) => (
+              <View style={styles.timelineRow} key={task.$id}>
+                <Text style={styles.timelineTime}>
+                  {formatClockTime(start)} - {formatClockTime(end)}
+                </Text>
+                <Text style={styles.timelineTask} numberOfLines={1}>
+                  {(task.emoji || '📝') + ' ' + task.title}
+                </Text>
+                <Text style={styles.timelineDuration}>{formatTime(task.plannedDuration)}</Text>
+              </View>
+            ))
+          ) : (
+            <Text style={styles.timelineEmpty}>No planned tasks yet</Text>
+          )}
         </View>
       </View>
 
@@ -255,6 +331,72 @@ const styles = StyleSheet.create({
   summaryValue: {
     fontSize: 20,
     fontWeight: '700',
+  },
+  planGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 16,
+  },
+  planCard: {
+    width: '48%',
+    backgroundColor: '#f8f8f8',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+  },
+  planLabel: {
+    fontSize: 12,
+    color: '#999',
+    marginBottom: 4,
+  },
+  planValue: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  planSubvalue: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+  },
+  timelineContainer: {
+    backgroundColor: '#f8f8f8',
+    borderRadius: 8,
+    padding: 12,
+  },
+  timelineTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  timelineRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  timelineTime: {
+    width: 92,
+    fontSize: 12,
+    color: '#666',
+  },
+  timelineTask: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: '500',
+    marginRight: 8,
+  },
+  timelineDuration: {
+    fontSize: 12,
+    color: '#666',
+  },
+  timelineEmpty: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
+    paddingVertical: 8,
   },
   section: {
     marginBottom: 24,

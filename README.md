@@ -7,6 +7,7 @@ A beautiful and intuitive time management app built with React Native and Expo.
 - ✅ **Task Management**: Create, edit, and organize your tasks
 - ⏱️ **Timer Functionality**: Track time spent on each task
 - 📊 **Analytics & Reports**: View planned vs actual time spent
+- 🗓️ **Day Planning Insights**: See completion pace, projected finish time, and a planned timeline
 - 🎨 **Customizable**: Choose from 13 accent colors and theme options
 - 📱 **Cross-Platform**: Works on iOS, Android, and Web
 - ☁️ **Cloud Sync**: Powered by Appwrite for seamless data synchronization

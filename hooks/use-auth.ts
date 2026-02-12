@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAppStore } from '@/lib/store';
-import { authService, settingsService } from '@/lib/appwrite-service';
+import { appwriteConfig, authService, settingsService } from '@/lib/appwrite-service';
 
 export function useAuth() {
   const [isLoading, setIsLoading] = useState(true);
@@ -14,6 +14,10 @@ export function useAuth() {
   const checkAuth = async () => {
     try {
       setIsLoading(true);
+      if (!appwriteConfig.isValid) {
+        setIsLoading(false);
+        return;
+      }
       const currentUser = await authService.getCurrentUser();
       
       if (currentUser) {
