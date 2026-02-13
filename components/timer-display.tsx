@@ -9,6 +9,7 @@ interface TimerDisplayProps {
 }
 
 export function TimerDisplay({ time, taskName, taskEmoji, isRunning, accentColor }: TimerDisplayProps) {
+  // Helper stays inside the component so it can use props directly; React will re-run it on every render.
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -35,6 +36,7 @@ export function TimerDisplay({ time, taskName, taskEmoji, isRunning, accentColor
         {formatTime(time)}
       </Text>
       {isRunning && (
+        // JSX allows conditional fragments; this block renders only while the timer is running.
         <Text fontSize="$3" fontWeight="500" color={accentColor}>
           ● Running
         </Text>

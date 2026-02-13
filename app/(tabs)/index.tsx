@@ -13,6 +13,8 @@ import { TaskModal } from '@/components/task-modal';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
+  // Each selector subscribes to only the slice of Zustand state we care about, triggering a re-render
+  // when that piece changes (similar to reading object properties but reactively tracked).
   const user = useAppStore((state) => state.user);
   const tasks = useAppStore((state) => state.tasks);
   const currentTaskIndex = useAppStore((state) => state.currentTaskIndex);
@@ -40,6 +42,7 @@ export default function HomeScreen() {
   useTaskCompletion();
 
   useEffect(() => {
+    // React runs this effect whenever `user` changes; it mirrors `componentDidUpdate` for that value.
     if (user) {
       loadTasks();
     }
@@ -123,6 +126,7 @@ export default function HomeScreen() {
     );
   }
 
+  // Early return pattern is common in React components—rendering stops here if the condition is met.
   if (!user) {
     return (
       <YStack flex={1} justifyContent="center" alignItems="center">
@@ -160,6 +164,7 @@ export default function HomeScreen() {
       <ScrollView style={{ flex: 1 }}>
         {currentTask ? (
           <>
+            {/* Presentational children receive plain data and callbacks—React re-renders them when props change. */}
             <TimerDisplay
               time={elapsedTime}
               taskName={currentTask.title}

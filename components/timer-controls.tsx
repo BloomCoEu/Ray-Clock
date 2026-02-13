@@ -16,6 +16,8 @@ export function TimerControls({
   onSkip,
   accentColor,
 }: TimerControlsProps) {
+  // Parent components pass down callbacks; React keeps the same function identity between renders
+  // unless the parent recreates it, so handlers here are just invoked like plain JS functions.
   return (
     <YStack paddingHorizontal="$4" paddingVertical="$6">
       <XStack justifyContent="center" gap="$4" marginBottom="$6">
