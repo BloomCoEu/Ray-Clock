@@ -1,7 +1,8 @@
-import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, FlatList } from 'react-native';
-import { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, FlatList, TextInput, Alert, ActivityIndicator } from 'react-native';
+import { useState, useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
 import { settingsService } from '@/lib/appwrite-service';
+import { useAppleCalendar } from '@/hooks/use-apple-calendar';
 import { Ionicons } from '@expo/vector-icons';
 
 const COLORS = [
@@ -27,6 +28,24 @@ export default function SettingsScreen() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
+
+  // Apple Calendar state
+  const [appleIdInput, setAppleIdInput] = useState('');
+  const [appPasswordInput, setAppPasswordInput] = useState('');
+  const {
+    isLoading: calLoading,
+    error: calError,
+    isConnected,
+    appleId,
+    connect,
+    disconnect,
+    syncAll,
+    loadSavedConfig,
+  } = useAppleCalendar();
+
+  useEffect(() => {
+    loadSavedConfig();
+  }, [loadSavedConfig]);
 
   const currentSettings = settings || {
     userId: user?.$id || '',
@@ -60,6 +79,46 @@ export default function SettingsScreen() {
 
   const handleDefaultTimeChange = async (time: number) => {
     await handleSettingChange('defaultTime', time);
+  };
+
+  const handleAppleConnect = async () => {
+    if (!appleIdInput.trim() || !appPasswordInput.trim()) {
+      Alert.alert('Missing Fields', 'Please enter both your Apple ID and app-specific password.');
+      return;
+    }
+    const success = await connect(appleIdInput.trim(), appPasswordInput.trim());
+    if (success) {
+      setAppleIdInput('');
+      setAppPasswordInput('');
+      Alert.alert('Connected', 'Apple Calendar connected successfully. Syncing your data...');
+      await syncAll();
+    } else {
+      Alert.alert('Connection Failed', calError || 'Could not connect to Apple Calendar.');
+    }
+  };
+
+  const handleAppleDisconnect = async () => {
+    Alert.alert(
+      'Disconnect Apple Calendar',
+      'This will remove your Apple Calendar credentials and clear synced data.',
+      [
+        { text: 'Cancel' },
+        {
+          text: 'Disconnect',
+          style: 'destructive',
+          onPress: async () => {
+            await disconnect();
+          },
+        },
+      ]
+    );
+  };
+
+  const handleSyncApple = async () => {
+    await syncAll();
+    if (!calError) {
+      Alert.alert('Synced', 'Calendar events and reminders updated.');
+    }
   };
 
   return (
@@ -216,6 +275,82 @@ export default function SettingsScreen() {
         </View>
       </View>
 
+      {/* Apple Calendar Integration Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Apple Calendar &amp; Reminders</Text>
+        <Text style={styles.sectionDescription}>
+          Connect your Apple Calendar and Reminders using an app-specific password.
+          Generate one at appleid.apple.com under Sign-In and Security.
+        </Text>
+
+        {isConnected ? (
+          <View>
+            <View style={styles.connectedInfo}>
+              <Ionicons name="checkmark-circle" size={20} color="#22C55E" />
+              <Text style={styles.connectedText}>Connected as {appleId}</Text>
+            </View>
+            <View style={styles.calendarActions}>
+              <TouchableOpacity
+                style={[styles.syncButton, { backgroundColor: currentSettings.accentColor }]}
+                onPress={handleSyncApple}
+                disabled={calLoading}
+              >
+                {calLoading ? (
+                  <ActivityIndicator color="white" size="small" />
+                ) : (
+                  <>
+                    <Ionicons name="sync" size={18} color="white" />
+                    <Text style={styles.syncButtonText}>Sync Now</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.disconnectButton}
+                onPress={handleAppleDisconnect}
+              >
+                <Text style={styles.disconnectButtonText}>Disconnect</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          <View>
+            <TextInput
+              style={styles.credentialInput}
+              placeholder="Apple ID (email)"
+              value={appleIdInput}
+              onChangeText={setAppleIdInput}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              placeholderTextColor="#999"
+            />
+            <TextInput
+              style={styles.credentialInput}
+              placeholder="App-specific password"
+              value={appPasswordInput}
+              onChangeText={setAppPasswordInput}
+              secureTextEntry
+              autoCapitalize="none"
+              placeholderTextColor="#999"
+            />
+            <TouchableOpacity
+              style={[styles.connectButton, { backgroundColor: currentSettings.accentColor }]}
+              onPress={handleAppleConnect}
+              disabled={calLoading}
+            >
+              {calLoading ? (
+                <ActivityIndicator color="white" size="small" />
+              ) : (
+                <Text style={styles.connectButtonText}>Connect Apple Calendar</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {calError ? (
+          <Text style={styles.errorText}>{calError}</Text>
+        ) : null}
+      </View>
+
       <View style={styles.spacer} />
     </ScrollView>
   );
@@ -336,6 +471,71 @@ const styles = StyleSheet.create({
   },
   spacer: {
     height: 32,
+  },
+  connectedInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  connectedText: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+  },
+  calendarActions: {
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'center',
+  },
+  syncButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  syncButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  disconnectButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ef4444',
+  },
+  disconnectButtonText: {
+    color: '#ef4444',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  credentialInput: {
+    borderWidth: 1,
+    borderColor: '#e5e5e5',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    marginBottom: 12,
+  },
+  connectButton: {
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  connectButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  errorText: {
+    color: '#ef4444',
+    fontSize: 13,
+    marginTop: 8,
   },
 });
 

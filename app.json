@@ -15,7 +15,9 @@
       "bundleIdentifier": "eu.bloomco.rayclock",
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": ["fetch"],
+        "UIBackgroundModes": [
+          "fetch"
+        ],
         "NSMicrophoneUsageDescription": "This app uses the microphone for audio feedback."
       }
     },
@@ -32,7 +34,8 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-splash-screen"
+      "expo-splash-screen",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

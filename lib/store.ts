@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { AppState, Task, Preset, Settings, User } from './types';
+import type { AppState } from './types';
 
 export const useAppStore = create<AppState>((set) => ({
   user: null,
@@ -10,6 +10,9 @@ export const useAppStore = create<AppState>((set) => ({
   elapsedTime: 0,
   presets: [],
   settings: null,
+  calendarEvents: [],
+  reminders: [],
+  appleCalendarConfig: null,
 
   setUser: (user) => set({ user }),
   
@@ -40,4 +43,10 @@ export const useAppStore = create<AppState>((set) => ({
   setPresets: (presets) => set({ presets }),
   
   setSettings: (settings) => set({ settings }),
+
+  setCalendarEvents: (events) => set({ calendarEvents: events }),
+
+  setReminders: (reminders) => set({ reminders }),
+
+  setAppleCalendarConfig: (config) => set({ appleCalendarConfig: config }),
 }));

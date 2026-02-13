@@ -48,6 +48,31 @@ export interface Settings {
   updatedAt?: string;
 }
 
+export interface CalendarEvent {
+  uid: string;
+  title: string;
+  startDate: string; // ISO 8601
+  endDate: string; // ISO 8601
+  description?: string;
+  location?: string;
+  calendarName?: string;
+}
+
+export interface Reminder {
+  uid: string;
+  title: string;
+  dueDate?: string; // ISO 8601
+  completed: boolean;
+  priority?: number;
+  notes?: string;
+  calendarName?: string;
+}
+
+export interface AppleCalendarConfig {
+  appleId: string;
+  isConnected: boolean;
+}
+
 export interface AppState {
   user: User | null;
   tasks: Task[];
@@ -57,6 +82,9 @@ export interface AppState {
   elapsedTime: number; // in seconds
   presets: Preset[];
   settings: Settings | null;
+  calendarEvents: CalendarEvent[];
+  reminders: Reminder[];
+  appleCalendarConfig: AppleCalendarConfig | null;
   
   // Actions
   setUser: (user: User | null) => void;
@@ -70,4 +98,7 @@ export interface AppState {
   setElapsedTime: (time: number) => void;
   setPresets: (presets: Preset[]) => void;
   setSettings: (settings: Settings) => void;
+  setCalendarEvents: (events: CalendarEvent[]) => void;
+  setReminders: (reminders: Reminder[]) => void;
+  setAppleCalendarConfig: (config: AppleCalendarConfig | null) => void;
 }
