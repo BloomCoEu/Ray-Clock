@@ -5,8 +5,8 @@ export function useTimer() {
   const timerIsRunning = useAppStore((state) => state.timerIsRunning);
   const elapsedTime = useAppStore((state) => state.elapsedTime);
   const setElapsedTime = useAppStore((state) => state.setElapsedTime);
-  // useRef stores the interval handle without causing re-renders; think of it as a persistent
-  // variable that survives function calls in React's world.
+  // useRef stores the interval handle without causing re-renders. It persists across component
+  // re-renders, unlike regular variables which are recreated each time the component function runs.
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {

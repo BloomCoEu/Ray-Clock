@@ -10,6 +10,7 @@ interface TimerDisplayProps {
 
 export function TimerDisplay({ time, taskName, taskEmoji, isRunning, accentColor }: TimerDisplayProps) {
   // Helper stays inside the component so it can use props directly; React will re-run it on every render.
+  // If this calculation were heavy, you could memoize it with useMemo/useCallback to avoid repeat work.
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);

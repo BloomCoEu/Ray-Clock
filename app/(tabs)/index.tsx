@@ -42,7 +42,8 @@ export default function HomeScreen() {
   useTaskCompletion();
 
   useEffect(() => {
-    // React runs this effect whenever `user` changes; it mirrors `componentDidUpdate` for that value.
+    // React runs this effect on mount and whenever `user` changes—roughly a combination of
+    // componentDidMount and componentDidUpdate for that dependency.
     if (user) {
       loadTasks();
     }

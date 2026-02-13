@@ -16,8 +16,9 @@ export function TimerControls({
   onSkip,
   accentColor,
 }: TimerControlsProps) {
-  // Parent components pass down callbacks; React keeps the same function identity between renders
-  // unless the parent recreates it, so handlers here are just invoked like plain JS functions.
+  // Parent components pass down callbacks as props; we invoke them like normal JS functions.
+  // If the parent recreates the callback on each render (e.g., without useCallback), a new function
+  // reference will be passed in, but the usage here remains the same.
   return (
     <YStack paddingHorizontal="$4" paddingVertical="$6">
       <XStack justifyContent="center" gap="$4" marginBottom="$6">
