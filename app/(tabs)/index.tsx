@@ -9,6 +9,7 @@ import { TimerDisplay } from '@/components/timer-display';
 import { TimerControls } from '@/components/timer-controls';
 import { TaskList } from '@/components/task-list';
 import { TaskModal } from '@/components/task-modal';
+import { CalendarEventsList } from '@/components/calendar-events-list';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
@@ -18,6 +19,9 @@ export default function HomeScreen() {
   const timerIsRunning = useAppStore((state) => state.timerIsRunning);
   const elapsedTime = useAppStore((state) => state.elapsedTime);
   const settings = useAppStore((state) => state.settings);
+  const calendarEvents = useAppStore((state) => state.calendarEvents);
+  const reminders = useAppStore((state) => state.reminders);
+  const appleCalendarConfig = useAppStore((state) => state.appleCalendarConfig);
   
   const setTasks = useAppStore((state) => state.setTasks);
   const setTimerIsRunning = useAppStore((state) => state.setTimerIsRunning);
@@ -194,6 +198,14 @@ export default function HomeScreen() {
                 accentColor={accentColor}
               />
             </View>
+
+            {appleCalendarConfig?.isConnected && (calendarEvents.length > 0 || reminders.length > 0) && (
+              <CalendarEventsList
+                events={calendarEvents}
+                reminders={reminders}
+                accentColor={accentColor}
+              />
+            )}
           </>
         ) : (
           <View style={styles.emptyStateContainer}>
@@ -209,6 +221,14 @@ export default function HomeScreen() {
               <Ionicons name="add" size={24} color="white" />
               <Text style={styles.createTaskButtonText}>Create First Task</Text>
             </TouchableOpacity>
+
+            {appleCalendarConfig?.isConnected && (calendarEvents.length > 0 || reminders.length > 0) && (
+              <CalendarEventsList
+                events={calendarEvents}
+                reminders={reminders}
+                accentColor={accentColor}
+              />
+            )}
           </View>
         )}
       </ScrollView>
