@@ -34,7 +34,8 @@ Add at least one platform so Appwrite accepts requests from your app:
 
 ### Create Collections
 
-Create the following 4 collections with their attributes:
+Create the following 3 collections with their attributes.
+If you already created them, confirm the attributes below match your schema.
 
 #### Collection 1: tasks
 
@@ -97,24 +98,6 @@ Create the following 4 collections with their attributes:
 - Update: Users
 - Delete: Users
 
-### Optional: Run the schema update script
-
-If you already have collections created, you can use the helper script to add any missing
-attributes that Ray Clock expects.
-
-1. Create an API key in **Project Settings > API Keys** with Database permissions (required for this script only)
-2. Add the key to your `.env` file:
-
-```env
-APPWRITE_API_KEY=your_server_api_key
-```
-
-3. Run the script:
-
-```bash
-npm run appwrite:add-properties
-```
-
 ## Step 3: Configure Environment Variables
 
 Create a `.env` file in the root of your project:
@@ -126,7 +109,6 @@ EXPO_PUBLIC_APPWRITE_DATABASE_ID=your_database_id
 EXPO_PUBLIC_APPWRITE_TASKS_COLLECTION_ID=your_tasks_collection_id
 EXPO_PUBLIC_APPWRITE_PRESETS_COLLECTION_ID=your_presets_collection_id
 EXPO_PUBLIC_APPWRITE_SETTINGS_COLLECTION_ID=your_settings_collection_id
-APPWRITE_API_KEY=your_server_api_key # Required for schema update script
 ```
 
 Replace the placeholder values with your actual IDs from Appwrite.
