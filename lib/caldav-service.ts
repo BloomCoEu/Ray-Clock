@@ -2,8 +2,27 @@ import type { CalendarEvent, Reminder } from './types';
 
 const CALDAV_BASE_URL = 'https://caldav.icloud.com';
 
+function encodeBase64(str: string): string {
+  if (typeof btoa === 'function') {
+    return btoa(str);
+  }
+  // Fallback for environments without btoa
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+  let output = '';
+  for (let i = 0; i < str.length; i += 3) {
+    const a = str.charCodeAt(i);
+    const b = i + 1 < str.length ? str.charCodeAt(i + 1) : 0;
+    const c = i + 2 < str.length ? str.charCodeAt(i + 2) : 0;
+    output += chars[a >> 2];
+    output += chars[((a & 3) << 4) | (b >> 4)];
+    output += i + 1 < str.length ? chars[((b & 15) << 2) | (c >> 6)] : '=';
+    output += i + 2 < str.length ? chars[c & 63] : '=';
+  }
+  return output;
+}
+
 function buildBasicAuth(appleId: string, appPassword: string): string {
-  const encoded = btoa(`${appleId}:${appPassword}`);
+  const encoded = encodeBase64(`${appleId}:${appPassword}`);
   return `Basic ${encoded}`;
 }
 
@@ -145,7 +164,7 @@ async function caldavRequest(
 
   if (!response.ok) {
     if (response.status === 401) {
-      throw new Error('Authentication failed. Please check your Apple ID and app-specific password.');
+      throw new Error('Authentication failed. Please verify your Apple ID and app-specific password. Note: app-specific passwords can be revoked — generate a new one at appleid.apple.com if needed.');
     }
     throw new Error(`CalDAV request failed: ${response.status} ${response.statusText}`);
   }

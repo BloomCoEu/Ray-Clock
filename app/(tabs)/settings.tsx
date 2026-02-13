@@ -91,7 +91,11 @@ export default function SettingsScreen() {
       setAppleIdInput('');
       setAppPasswordInput('');
       Alert.alert('Connected', 'Apple Calendar connected successfully. Syncing your data...');
-      await syncAll();
+      try {
+        await syncAll();
+      } catch {
+        Alert.alert('Sync Issue', 'Connected successfully, but initial sync encountered an issue. Try syncing again from settings.');
+      }
     } else {
       Alert.alert('Connection Failed', calError || 'Could not connect to Apple Calendar.');
     }
@@ -277,7 +281,7 @@ export default function SettingsScreen() {
 
       {/* Apple Calendar Integration Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Apple Calendar &amp; Reminders</Text>
+        <Text style={styles.sectionTitle}>Apple Calendar & Reminders</Text>
         <Text style={styles.sectionDescription}>
           Connect your Apple Calendar and Reminders using an app-specific password.
           Generate one at appleid.apple.com under Sign-In and Security.
