@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { FlatList } from 'react-native';
+import { YStack, XStack, Text, Button } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 import type { Task } from '@/lib/types';
 
@@ -24,9 +25,9 @@ export function TaskList({ tasks, currentTaskIndex, accentColor, onEditTask, onD
 
   if (upcomingTasks.length === 0) {
     return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>No more tasks</Text>
-      </View>
+      <YStack paddingVertical="$10" alignItems="center">
+        <Text fontSize="$4" color="$gray10">No more tasks</Text>
+      </YStack>
     );
   }
 
@@ -34,94 +35,56 @@ export function TaskList({ tasks, currentTaskIndex, accentColor, onEditTask, onD
     <FlatList
       data={upcomingTasks}
       renderItem={({ item, index }) => (
-        <View style={[styles.taskCard, { borderLeftColor: accentColor }]}>
-          <View style={styles.taskContent}>
-            <Text style={styles.taskEmoji}>{item.emoji || '📝'}</Text>
-            <View style={styles.taskInfo}>
-              <Text style={styles.taskTitle} numberOfLines={1}>
+        <XStack
+          alignItems="center"
+          justifyContent="space-between"
+          paddingVertical="$3"
+          paddingHorizontal="$3"
+          marginHorizontal="$3"
+          marginBottom="$2"
+          backgroundColor="$gray2"
+          borderLeftWidth={4}
+          borderLeftColor={accentColor}
+          borderRadius="$3"
+        >
+          <XStack alignItems="center" flex={1} gap="$3">
+            <Text fontSize={28}>{item.emoji || '📝'}</Text>
+            <YStack flex={1}>
+              <Text fontSize="$4" fontWeight="500" marginBottom="$1" numberOfLines={1}>
                 {item.title}
               </Text>
-              <Text style={styles.taskDuration}>
+              <Text fontSize="$2" color="$gray10">
                 {formatDuration(item.plannedDuration)}
               </Text>
-            </View>
-          </View>
+            </YStack>
+          </XStack>
           
           {(onEditTask || onDeleteTask) && (
-            <View style={styles.taskActions}>
+            <XStack gap="$2">
               {onEditTask && (
-                <TouchableOpacity
-                  style={styles.actionButton}
+                <Button
+                  size="$2"
+                  padding="$2"
+                  backgroundColor="transparent"
                   onPress={() => onEditTask(item)}
-                >
-                  <Ionicons name="create-outline" size={20} color="#666" />
-                </TouchableOpacity>
+                  icon={<Ionicons name="create-outline" size={20} color="#666" />}
+                />
               )}
               {onDeleteTask && (
-                <TouchableOpacity
-                  style={styles.actionButton}
+                <Button
+                  size="$2"
+                  padding="$2"
+                  backgroundColor="transparent"
                   onPress={() => onDeleteTask(item.$id)}
-                >
-                  <Ionicons name="trash-outline" size={20} color="#ef4444" />
-                </TouchableOpacity>
+                  icon={<Ionicons name="trash-outline" size={20} color="#ef4444" />}
+                />
               )}
-            </View>
+            </XStack>
           )}
-        </View>
+        </XStack>
       )}
       keyExtractor={(item) => item.$id}
       scrollEnabled={false}
     />
   );
 }
-
-const styles = StyleSheet.create({
-  emptyContainer: {
-    paddingVertical: 40,
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#999',
-  },
-  taskCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    marginHorizontal: 12,
-    marginBottom: 8,
-    backgroundColor: '#f8f8f8',
-    borderLeftWidth: 4,
-    borderRadius: 8,
-  },
-  taskContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  taskEmoji: {
-    fontSize: 28,
-    marginRight: 12,
-  },
-  taskInfo: {
-    flex: 1,
-  },
-  taskTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 2,
-  },
-  taskDuration: {
-    fontSize: 12,
-    color: '#666',
-  },
-  taskActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  actionButton: {
-    padding: 8,
-  },
-});

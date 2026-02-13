@@ -1,15 +1,11 @@
 import { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Alert,
 } from 'react-native';
+import { YStack, Text, Button, Input } from 'tamagui';
 import { useAuth } from '@/hooks/use-auth';
 import { appwriteConfig } from '@/lib/appwrite-service';
 
@@ -67,200 +63,115 @@ export function AuthScreen({ onLoginSuccess }: AuthScreenProps) {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={{ flex: 1 }}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.content}>
-          <Text style={styles.title}>⏰ Ray Clock</Text>
-          <Text style={styles.subtitle}>Time management made simple</Text>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <YStack flex={1} justifyContent="center" paddingHorizontal="$6" paddingVertical="$10" backgroundColor="white">
+          <Text fontSize={48} fontWeight="700" textAlign="center" marginBottom="$2">
+            ⏰ Ray Clock
+          </Text>
+          <Text fontSize="$5" color="$gray11" textAlign="center" marginBottom="$10">
+            Time management made simple
+          </Text>
 
-          <View style={styles.form}>
+          <YStack gap="$5" marginBottom="$8">
             {!isLogin && (
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Name</Text>
-                <TextInput
-                  style={styles.input}
+              <YStack gap="$2">
+                <Text fontSize="$4" fontWeight="600" color="$gray12">Name</Text>
+                <Input
+                  size="$4"
                   placeholder="Your name"
                   value={name}
                   onChangeText={setName}
                   autoCapitalize="words"
-                  placeholderTextColor="#999"
+                  borderColor="$gray5"
+                  borderWidth={1}
                 />
-              </View>
+              </YStack>
             )}
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email</Text>
-              <TextInput
-                style={styles.input}
+            <YStack gap="$2">
+              <Text fontSize="$4" fontWeight="600" color="$gray12">Email</Text>
+              <Input
+                size="$4"
                 placeholder="your@email.com"
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"
                 keyboardType="email-address"
-                placeholderTextColor="#999"
+                borderColor="$gray5"
+                borderWidth={1}
               />
-            </View>
+            </YStack>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Password</Text>
-              <TextInput
-                style={styles.input}
+            <YStack gap="$2">
+              <Text fontSize="$4" fontWeight="600" color="$gray12">Password</Text>
+              <Input
+                size="$4"
                 placeholder="••••••••"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
-                placeholderTextColor="#999"
+                borderColor="$gray5"
+                borderWidth={1}
               />
-            </View>
+            </YStack>
 
-            <TouchableOpacity
-              style={[styles.button, isLoading && styles.buttonDisabled]}
+            <Button
+              size="$5"
+              backgroundColor="$green10"
               onPress={handleSubmit}
               disabled={isLoading}
+              opacity={isLoading ? 0.6 : 1}
+              marginTop="$2"
             >
-              <Text style={styles.buttonText}>
+              <Text color="white" fontWeight="600" fontSize="$5">
                 {isLoading ? 'Loading...' : isLogin ? 'Log In' : 'Sign Up'}
               </Text>
-            </TouchableOpacity>
+            </Button>
 
-            <TouchableOpacity
-              style={styles.switchButton}
+            <Button
+              size="$3"
+              backgroundColor="transparent"
               onPress={() => setIsLogin(!isLogin)}
+              marginTop="$4"
             >
-              <Text style={styles.switchButtonText}>
+              <Text color="$green10">
                 {isLogin
                   ? "Don't have an account? Sign up"
                   : 'Already have an account? Log in'}
               </Text>
-            </TouchableOpacity>
-          </View>
+            </Button>
+          </YStack>
 
-          <View style={styles.footer}>
+          <YStack alignItems="center">
             {!appwriteConfig.isValid && (
-              <View style={styles.configWarning}>
-                <Text style={styles.configTitle}>Appwrite config missing</Text>
-                <Text style={styles.configText}>
+              <YStack
+                backgroundColor="#FEF3C7"
+                borderColor="#F59E0B"
+                borderWidth={1}
+                paddingHorizontal="$3"
+                paddingVertical="$2"
+                borderRadius="$3"
+                marginBottom="$3"
+              >
+                <Text fontSize="$2" fontWeight="600" color="#92400E" textAlign="center" marginBottom="$1">
+                  Appwrite config missing
+                </Text>
+                <Text fontSize="$2" color="#92400E" textAlign="center">
                   {appwriteConfig.missingKeys.join(', ')}
                 </Text>
-              </View>
+              </YStack>
             )}
-            <Text style={styles.footerText}>
+            <Text fontSize="$2" color="$gray10" textAlign="center" marginBottom="$1">
               Note: You need to configure Appwrite first
             </Text>
-            <Text style={styles.footerLink}>
+            <Text fontSize="$2" color="$green10" textAlign="center">
               See setup instructions in the repository
             </Text>
-          </View>
-        </View>
+          </YStack>
+        </YStack>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 40,
-  },
-  title: {
-    fontSize: 48,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 40,
-  },
-  form: {
-    marginBottom: 32,
-  },
-  inputGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-    color: '#333',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#e5e5e5',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-  },
-  button: {
-    backgroundColor: '#10B981',
-    paddingVertical: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  switchButton: {
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  switchButtonText: {
-    color: '#10B981',
-    fontSize: 14,
-  },
-  footer: {
-    alignItems: 'center',
-  },
-  configWarning: {
-    backgroundColor: '#FEF3C7',
-    borderColor: '#F59E0B',
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  configTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#92400E',
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  configText: {
-    fontSize: 12,
-    color: '#92400E',
-    textAlign: 'center',
-  },
-  footerText: {
-    fontSize: 12,
-    color: '#999',
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  footerLink: {
-    fontSize: 12,
-    color: '#10B981',
-    textAlign: 'center',
-  },
-});

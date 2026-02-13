@@ -1,5 +1,6 @@
-import { KeyboardAvoidingView, Platform, View, StyleSheet, ScrollView, Text, TouchableOpacity, Alert } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import { useEffect, useState } from 'react';
+import { YStack, XStack, Text, Button } from 'tamagui';
 import { useAppStore } from '@/lib/store';
 import { useAuth } from '@/hooks/use-auth';
 import { useTimer } from '@/hooks/use-timer';
@@ -116,17 +117,17 @@ export default function HomeScreen() {
 
   if (authLoading || taskLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
+      <YStack flex={1} justifyContent="center" alignItems="center">
+        <Text fontSize="$4" color="$gray10">Loading...</Text>
+      </YStack>
     );
   }
 
   if (!user) {
     return (
-      <View style={styles.notLoggedInContainer}>
-        <Text style={styles.notLoggedInText}>Please log in to continue</Text>
-      </View>
+      <YStack flex={1} justifyContent="center" alignItems="center">
+        <Text fontSize="$4" color="$gray11">Please log in to continue</Text>
+      </YStack>
     );
   }
 
@@ -154,9 +155,9 @@ export default function HomeScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={{ flex: 1 }}
     >
-      <ScrollView style={styles.scrollView}>
+      <ScrollView style={{ flex: 1 }}>
         {currentTask ? (
           <>
             <TimerDisplay
@@ -175,41 +176,49 @@ export default function HomeScreen() {
               accentColor={accentColor}
             />
 
-            <View style={styles.taskListContainer}>
-              <View style={styles.taskListHeader}>
-                <Text style={styles.taskListTitle}>Remaining Tasks</Text>
-                <TouchableOpacity
-                  style={[styles.addButton, { backgroundColor: accentColor }]}
+            <YStack paddingBottom="$8">
+              <XStack
+                justifyContent="space-between"
+                alignItems="center"
+                marginHorizontal="$3"
+                marginTop="$5"
+                marginBottom="$2"
+              >
+                <Text fontSize="$5" fontWeight="600">Remaining Tasks</Text>
+                <Button
+                  circular
+                  size="$3"
+                  backgroundColor={accentColor}
                   onPress={() => {
                     setEditingTask(null);
                     setShowTaskModal(true);
                   }}
-                >
-                  <Ionicons name="add" size={20} color="white" />
-                </TouchableOpacity>
-              </View>
+                  icon={<Ionicons name="add" size={20} color="white" />}
+                />
+              </XStack>
               <TaskList
                 tasks={tasks}
                 currentTaskIndex={currentTaskIndex}
                 accentColor={accentColor}
               />
-            </View>
+            </YStack>
           </>
         ) : (
-          <View style={styles.emptyStateContainer}>
-            <Text style={styles.emptyStateText}>🎉 No tasks yet!</Text>
-            <Text style={styles.emptyStateSubtext}>Create a task to get started</Text>
-            <TouchableOpacity
-              style={[styles.createTaskButton, { backgroundColor: accentColor }]}
+          <YStack flex={1} justifyContent="center" alignItems="center" paddingVertical="$15">
+            <Text fontSize={32} marginBottom="$2">🎉 No tasks yet!</Text>
+            <Text fontSize="$4" color="$gray10" marginBottom="$6">Create a task to get started</Text>
+            <Button
+              size="$4"
+              backgroundColor={accentColor}
               onPress={() => {
                 setEditingTask(null);
                 setShowTaskModal(true);
               }}
+              icon={<Ionicons name="add" size={24} color="white" />}
             >
-              <Ionicons name="add" size={24} color="white" />
-              <Text style={styles.createTaskButtonText}>Create First Task</Text>
-            </TouchableOpacity>
-          </View>
+              <Text color="white" fontWeight="600">Create First Task</Text>
+            </Button>
+          </YStack>
         )}
       </ScrollView>
 
@@ -226,82 +235,3 @@ export default function HomeScreen() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 16,
-    color: '#999',
-  },
-  notLoggedInContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  notLoggedInText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  taskListContainer: {
-    paddingBottom: 32,
-  },
-  taskListHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginLeft: 12,
-    marginRight: 12,
-    marginTop: 20,
-    marginBottom: 8,
-  },
-  taskListTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  addButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyStateContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  emptyStateText: {
-    fontSize: 32,
-    marginBottom: 8,
-  },
-  emptyStateSubtext: {
-    fontSize: 16,
-    color: '#999',
-    marginBottom: 24,
-  },
-  createTaskButton: {
-    flexDirection: 'row',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: 'center',
-    gap: 8,
-  },
-  createTaskButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});

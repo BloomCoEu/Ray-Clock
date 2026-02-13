@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, ScrollView, Linking, TouchableOpacity } from 'react-native';
+import { ScrollView, Linking } from 'react-native';
+import { YStack, XStack, Text, Button } from 'tamagui';
 import { Collapsible } from '@/components/ui/collapsible';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -8,23 +9,23 @@ export default function ExploreScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>⏰ Ray Clock</Text>
-        <Text style={styles.subtitle}>Help & Information</Text>
-      </View>
+    <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <YStack paddingHorizontal="$5" paddingTop="$5" paddingBottom="$4">
+        <Text fontSize={32} fontWeight="700" marginBottom="$1">⏰ Ray Clock</Text>
+        <Text fontSize="$4" color="$gray10">Help & Information</Text>
+      </YStack>
 
       <Collapsible title="Getting Started">
-        <Text style={styles.text}>
+        <Text fontSize="$3" lineHeight={22} color="$gray12" marginBottom="$3">
           Welcome to Ray Clock! This app helps you manage your time effectively with task tracking and timer functionality.
         </Text>
-        <Text style={styles.text}>
+        <Text fontSize="$3" lineHeight={22} color="$gray12" marginBottom="$3">
           To get started, create your first task on the Home tab and start the timer when you&apos;re ready to begin.
         </Text>
       </Collapsible>
 
       <Collapsible title="Timer Features">
-        <Text style={styles.text}>
+        <Text fontSize="$3" lineHeight={22} color="$gray12" marginBottom="$3">
           • Start/pause/resume timer for each task{'\n'}
           • Adjust time with -5/+5 minute buttons{'\n'}
           • Automatic task completion when time runs out{'\n'}
@@ -33,7 +34,7 @@ export default function ExploreScreen() {
       </Collapsible>
 
       <Collapsible title="Task Management">
-        <Text style={styles.text}>
+        <Text fontSize="$3" lineHeight={22} color="$gray12" marginBottom="$3">
           • Create tasks with custom emojis and durations{'\n'}
           • Edit and delete tasks as needed{'\n'}
           • Tasks automatically progress to the next one{'\n'}
@@ -42,13 +43,13 @@ export default function ExploreScreen() {
       </Collapsible>
 
       <Collapsible title="Preset Lists">
-        <Text style={styles.text}>
+        <Text fontSize="$3" lineHeight={22} color="$gray12" marginBottom="$3">
           Save common task lists as presets and load them anytime. Perfect for morning routines, work sessions, or any recurring set of tasks.
         </Text>
       </Collapsible>
 
       <Collapsible title="Customization">
-        <Text style={styles.text}>
+        <Text fontSize="$3" lineHeight={22} color="$gray12" marginBottom="$3">
           Visit the Settings tab to customize:{'\n'}
           • Accent color (13 options){'\n'}
           • Theme (Auto, Light, Dark){'\n'}
@@ -58,73 +59,27 @@ export default function ExploreScreen() {
       </Collapsible>
 
       <Collapsible title="Setup Required">
-        <Text style={styles.text}>
+        <Text fontSize="$3" lineHeight={22} color="$gray12" marginBottom="$3">
           This app requires Appwrite configuration. Please see APPWRITE_SETUP.md in the repository for detailed setup instructions.
         </Text>
-        <TouchableOpacity
-          style={styles.linkButton}
+        <Button
+          backgroundColor="#f0f9ff"
+          borderRadius="$2"
+          paddingVertical="$3"
+          paddingHorizontal="$4"
+          marginTop="$2"
           onPress={() => openLink('https://github.com/BloomCoEu/Ray-Clock')}
+          icon={<Ionicons name="logo-github" size={20} color="#10B981" />}
         >
-          <Ionicons name="logo-github" size={20} color="#10B981" />
-          <Text style={styles.linkText}>View on GitHub</Text>
-        </TouchableOpacity>
+          <Text color="#10B981" fontSize="$3" fontWeight="600">View on GitHub</Text>
+        </Button>
       </Collapsible>
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Built with ❤️ using Expo and Appwrite</Text>
-      </View>
+      <YStack paddingVertical="$8" paddingHorizontal="$5" alignItems="center">
+        <Text fontSize="$2" color="$gray10" textAlign="center">
+          Built with ❤️ using Expo and Appwrite
+        </Text>
+      </YStack>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 16,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-  },
-  text: {
-    fontSize: 14,
-    lineHeight: 22,
-    color: '#333',
-    marginBottom: 12,
-  },
-  linkButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: '#f0f9ff',
-    borderRadius: 8,
-    marginTop: 8,
-  },
-  linkText: {
-    fontSize: 14,
-    color: '#10B981',
-    fontWeight: '600',
-  },
-  footer: {
-    paddingVertical: 32,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 12,
-    color: '#999',
-    textAlign: 'center',
-  },
-});

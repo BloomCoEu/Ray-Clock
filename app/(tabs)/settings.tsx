@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, FlatList } from 'react-native';
+import { ScrollView, Switch, FlatList } from 'react-native';
 import { useState } from 'react';
+import { YStack, XStack, Text, Button } from 'tamagui';
 import { useAppStore } from '@/lib/store';
 import { settingsService } from '@/lib/appwrite-service';
 import { Ionicons } from '@expo/vector-icons';
@@ -63,279 +64,183 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Settings</Text>
+    <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <Text fontSize={28} fontWeight="700" marginBottom="$6" marginTop="$4" marginHorizontal="$4">
+        Settings
+      </Text>
 
       {/* Pie Timer Section */}
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <View>
-            <Text style={styles.sectionTitle}>Pie Timer</Text>
-            <Text style={styles.sectionDescription}>
+      <YStack
+        marginHorizontal="$4"
+        marginBottom="$6"
+        paddingBottom="$4"
+        borderBottomWidth={1}
+        borderBottomColor="$gray5"
+      >
+        <XStack justifyContent="space-between" alignItems="flex-start" marginBottom="$3">
+          <YStack flex={1}>
+            <Text fontSize="$5" fontWeight="600" marginBottom="$1">Pie Timer</Text>
+            <Text fontSize="$3" color="$gray10" lineHeight={20} marginBottom="$3">
               Set the pie timer as the default timer (this only works for tasks that are 1hr or less).
             </Text>
-          </View>
-        </View>
+          </YStack>
+        </XStack>
         <Switch
           value={currentSettings.pieTimerEnabled}
           onValueChange={(value) =>
             handleSettingChange('pieTimerEnabled', value)
           }
           disabled={isLoading}
-          style={styles.switch}
         />
-      </View>
+      </YStack>
 
       {/* Accent Color Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Accent Color</Text>
-        <Text style={styles.sectionDescription}>
+      <YStack
+        marginHorizontal="$4"
+        marginBottom="$6"
+        paddingBottom="$4"
+        borderBottomWidth={1}
+        borderBottomColor="$gray5"
+      >
+        <Text fontSize="$5" fontWeight="600" marginBottom="$1">Accent Color</Text>
+        <Text fontSize="$3" color="$gray10" lineHeight={20} marginBottom="$3">
           Set the color for the pie timer and the Silent Visual Alarm.
         </Text>
 
-        <TouchableOpacity
-          style={[styles.colorButton, { backgroundColor: currentSettings.accentColor }]}
+        <Button
+          backgroundColor={currentSettings.accentColor}
           onPress={() => setShowColorPicker(!showColorPicker)}
+          paddingVertical="$3"
+          marginTop="$2"
         >
-          <Text style={styles.colorButtonText}>Selected Color</Text>
-        </TouchableOpacity>
+          <Text color="white" fontWeight="600">Selected Color</Text>
+        </Button>
 
         {showColorPicker && (
-          <View style={styles.colorPicker}>
+          <YStack marginTop="$3" padding="$2" backgroundColor="$gray2" borderRadius="$2">
             <FlatList
               data={COLORS}
               renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.colorOption,
-                    { backgroundColor: item },
-                    currentSettings.accentColor === item &&
-                      styles.colorOptionSelected,
-                  ]}
+                <Button
+                  backgroundColor={item}
+                  width="23%"
+                  aspectRatio={1}
+                  borderRadius="$2"
+                  margin="1%"
+                  borderWidth={2}
+                  borderColor={currentSettings.accentColor === item ? '#333' : 'transparent'}
                   onPress={() => handleColorSelect(item)}
-                >
-                  {currentSettings.accentColor === item && (
+                  icon={currentSettings.accentColor === item && (
                     <Ionicons name="checkmark" size={20} color="white" />
                   )}
-                </TouchableOpacity>
+                />
               )}
               numColumns={4}
               keyExtractor={(item) => item}
               scrollEnabled={false}
             />
-          </View>
+          </YStack>
         )}
-      </View>
+      </YStack>
 
       {/* Theme Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Theme</Text>
-        <Text style={styles.sectionDescription}>
+      <YStack
+        marginHorizontal="$4"
+        marginBottom="$6"
+        paddingBottom="$4"
+        borderBottomWidth={1}
+        borderBottomColor="$gray5"
+      >
+        <Text fontSize="$5" fontWeight="600" marginBottom="$1">Theme</Text>
+        <Text fontSize="$3" color="$gray10" lineHeight={20} marginBottom="$3">
           Shine brightly in light mode, or turn to the dark side
         </Text>
 
-        <View style={styles.themeOptions}>
+        <XStack gap="$3" marginTop="$3">
           {(['auto', 'light', 'dark'] as const).map((theme) => (
-            <TouchableOpacity
+            <Button
               key={theme}
-              style={[
-                styles.themeButton,
-                currentSettings.theme === theme && styles.themeButtonActive,
-                { borderColor: currentSettings.accentColor },
-              ]}
+              flex={1}
+              paddingVertical="$2.5"
+              borderWidth={2}
+              borderColor={currentSettings.theme === theme ? currentSettings.accentColor : '$gray5'}
+              backgroundColor={currentSettings.theme === theme ? '$gray2' : 'transparent'}
               onPress={() => handleSettingChange('theme', theme)}
             >
               <Text
-                style={[
-                  styles.themeButtonText,
-                  currentSettings.theme === theme && {
-                    color: currentSettings.accentColor,
-                  },
-                ]}
+                fontSize="$3"
+                fontWeight="500"
+                color={currentSettings.theme === theme ? currentSettings.accentColor : '$gray10'}
               >
                 {theme.charAt(0).toUpperCase() + theme.slice(1)}
               </Text>
-            </TouchableOpacity>
+            </Button>
           ))}
-        </View>
-      </View>
+        </XStack>
+      </YStack>
 
       {/* Smart Time Detection Section */}
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <View>
-            <Text style={styles.sectionTitle}>Smart Time Detection</Text>
-            <Text style={styles.sectionDescription}>
+      <YStack
+        marginHorizontal="$4"
+        marginBottom="$6"
+        paddingBottom="$4"
+        borderBottomWidth={1}
+        borderBottomColor="$gray5"
+      >
+        <XStack justifyContent="space-between" alignItems="flex-start" marginBottom="$3">
+          <YStack flex={1}>
+            <Text fontSize="$5" fontWeight="600" marginBottom="$1">Smart Time Detection</Text>
+            <Text fontSize="$3" color="$gray10" lineHeight={20} marginBottom="$3">
               If you type a number after a task&apos;s title it will automatically set the timer for that task
             </Text>
-          </View>
-        </View>
+          </YStack>
+        </XStack>
         <Switch
           value={currentSettings.smartTimeDetection}
           onValueChange={(value) =>
             handleSettingChange('smartTimeDetection', value)
           }
           disabled={isLoading}
-          style={styles.switch}
         />
-      </View>
+      </YStack>
 
       {/* Default Time Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Default Time</Text>
-        <Text style={styles.sectionDescription}>
+      <YStack
+        marginHorizontal="$4"
+        marginBottom="$6"
+        paddingBottom="$4"
+        borderBottomWidth={1}
+        borderBottomColor="$gray5"
+      >
+        <Text fontSize="$5" fontWeight="600" marginBottom="$1">Default Time</Text>
+        <Text fontSize="$3" color="$gray10" lineHeight={20} marginBottom="$3">
           Set the default time used when creating new tasks.
         </Text>
 
-        <View style={styles.defaultTimeInput}>
+        <XStack gap="$2" marginTop="$3" flexWrap="wrap">
           {[5, 10, 15, 20, 30].map((time) => (
-            <TouchableOpacity
+            <Button
               key={time}
-              style={[
-                styles.timeButton,
-                currentSettings.defaultTime === time &&
-                  styles.timeButtonActive,
-                currentSettings.defaultTime === time && {
-                  backgroundColor: currentSettings.accentColor,
-                },
-              ]}
+              paddingVertical="$2"
+              paddingHorizontal="$3"
+              borderWidth={2}
+              borderColor={currentSettings.defaultTime === time ? 'transparent' : '$gray5'}
+              backgroundColor={currentSettings.defaultTime === time ? currentSettings.accentColor : 'transparent'}
               onPress={() => handleDefaultTimeChange(time)}
             >
               <Text
-                style={[
-                  styles.timeButtonText,
-                  currentSettings.defaultTime === time && {
-                    color: 'white',
-                  },
-                ]}
+                fontSize="$3"
+                fontWeight="500"
+                color={currentSettings.defaultTime === time ? 'white' : '$gray10'}
               >
                 {time}m
               </Text>
-            </TouchableOpacity>
+            </Button>
           ))}
-        </View>
-      </View>
+        </XStack>
+      </YStack>
 
-      <View style={styles.spacer} />
+      <YStack height={32} />
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 24,
-    marginTop: 16,
-    marginHorizontal: 16,
-  },
-  section: {
-    marginHorizontal: 16,
-    marginBottom: 24,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e5e5',
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  sectionDescription: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
-    marginBottom: 12,
-  },
-  switch: {
-    marginTop: 8,
-  },
-  colorButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    marginTop: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  colorButtonText: {
-    color: 'white',
-    fontWeight: '600',
-  },
-  colorPicker: {
-    marginTop: 12,
-    padding: 8,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 8,
-  },
-  colorOption: {
-    width: '23%',
-    aspectRatio: 1,
-    borderRadius: 8,
-    margin: '1%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  colorOptionSelected: {
-    borderColor: '#333',
-  },
-  themeOptions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 12,
-  },
-  themeButton: {
-    flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderWidth: 2,
-    borderColor: '#e5e5e5',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  themeButtonActive: {
-    backgroundColor: '#f0f0f0',
-  },
-  themeButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#666',
-  },
-  defaultTimeInput: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 12,
-    flexWrap: 'wrap',
-  },
-  timeButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderWidth: 2,
-    borderColor: '#e5e5e5',
-    borderRadius: 8,
-  },
-  timeButtonActive: {
-    borderColor: 'transparent',
-  },
-  timeButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#666',
-  },
-  spacer: {
-    height: 32,
-  },
-});
-
