@@ -42,6 +42,7 @@ If you already created them, confirm the attributes below match your schema.
 **Attributes:**
 - `userId` (String, Required, Size: 255)
 - `title` (String, Required, Size: 255)
+- `description` (String, Optional, Size: 1000)
 - `emoji` (String, Optional, Size: 10)
 - `plannedDuration` (Integer, Required)
 - `actualDuration` (Integer, Optional, Default: 0)

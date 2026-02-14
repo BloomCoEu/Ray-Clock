@@ -6,10 +6,12 @@ import { useAuth } from '@/hooks/use-auth';
 import { useTimer } from '@/hooks/use-timer';
 import { useTaskCompletion } from '@/hooks/use-task-completion';
 import { taskService } from '@/lib/appwrite-service';
+import { AppwriteErrorCode } from '@/lib/types';
 import { TimerDisplay } from '@/components/timer-display';
 import { TimerControls } from '@/components/timer-controls';
 import { TaskList } from '@/components/task-list';
 import { TaskModal } from '@/components/task-modal';
+import { ConnectionStatus } from '@/components/connection-status';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
@@ -71,10 +73,25 @@ export default function HomeScreen() {
 
       addTask(newTask as any);
       setShowTaskModal(false);
-      Alert.alert('Success', 'Task created');
-    } catch (error) {
+      Alert.alert('Success', 'Task created successfully');
+    } catch (error: unknown) {
       console.error('Error adding task:', error);
-      Alert.alert('Error', 'Failed to create task');
+      
+      let errorMessage = 'Failed to create task. Please try again.';
+      
+      // Check for specific error codes
+      if (error && typeof error === 'object' && 'code' in error) {
+        const errorCode = error.code;
+        if (errorCode === AppwriteErrorCode.NOT_CONFIGURED) {
+          errorMessage = error instanceof Error ? error.message : 'Appwrite is not configured. Please check your .env file.';
+        } else if (errorCode === AppwriteErrorCode.PERMISSION_DENIED) {
+          errorMessage = error instanceof Error ? error.message : 'You are not authorized to create tasks. Please check your Appwrite permissions.';
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      Alert.alert('Error', errorMessage);
     }
   };
 
@@ -206,9 +223,14 @@ export default function HomeScreen() {
             </YStack>
           </>
         ) : (
-          <YStack flex={1} justifyContent="center" alignItems="center" paddingVertical="$15">
+          <YStack flex={1} justifyContent="center" alignItems="center" paddingVertical="$15" paddingHorizontal="$4">
             <Text fontSize={32} marginBottom="$2">🎉 No tasks yet!</Text>
-            <Text fontSize="$4" color="$gray10" marginBottom="$6">Create a task to get started</Text>
+            <Text fontSize="$4" color="$gray10" marginBottom="$6" textAlign="center">Create a task to get started</Text>
+            
+            <YStack width="100%" maxWidth={400} gap="$4" marginBottom="$6">
+              <ConnectionStatus accentColor={accentColor} />
+            </YStack>
+            
             <Button
               size="$4"
               backgroundColor={accentColor}

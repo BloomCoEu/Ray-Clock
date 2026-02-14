@@ -1,5 +1,6 @@
 import { Client, Account, Databases, ID, Query } from 'appwrite';
 import type { Task, Preset, Settings } from './types';
+import { AppwriteError, AppwriteErrorCode } from './types';
 
 // Initialize Appwrite client
 const client = new Client();
@@ -46,6 +47,54 @@ if (appwriteConfig.isValid) {
 
 export const account = new Account(client);
 export const databases = new Databases(client);
+
+// Connection Validation
+export const connectionService = {
+  async validateConnection() {
+    if (!appwriteConfig.isValid) {
+      return {
+        isConnected: false,
+        error: 'Appwrite configuration is missing required keys',
+        missingKeys: appwriteConfig.missingKeys,
+      };
+    }
+
+    try {
+      // Validate both connectivity and authentication by attempting to get account info
+      // Note: This requires user to be logged in. 401 error is acceptable (means server is reachable)
+      await account.get();
+      return {
+        isConnected: true,
+        error: null,
+        missingKeys: [],
+      };
+    } catch (error: unknown) {
+      // If error is 401 (unauthorized), server is reachable but user not logged in
+      // This is still a valid connection
+      if (typeof error === 'object' && error !== null && 'code' in error && error.code === 401) {
+        return {
+          isConnected: true,
+          error: null,
+          missingKeys: [],
+        };
+      }
+
+      const errorMessage = error instanceof Error ? error.message : 'Failed to connect to Appwrite';
+      return {
+        isConnected: false,
+        error: errorMessage,
+        missingKeys: [],
+      };
+    }
+  },
+
+  getConfigStatus() {
+    return {
+      isValid: appwriteConfig.isValid,
+      missingKeys: appwriteConfig.missingKeys,
+    };
+  },
+};
 
 // Auth Service
 export const authService = {
@@ -111,8 +160,10 @@ export const taskService = {
 
   async createTask(userId: string, taskData: Partial<Task>) {
     if (!appwriteConfig.isValid) {
-      console.warn('Appwrite not configured, cannot create task');
-      throw new Error('Appwrite not configured. Please check .env file.');
+      throw new AppwriteError(
+        'Appwrite not configured. Please check .env file.',
+        AppwriteErrorCode.NOT_CONFIGURED
+      );
     }
     try {
       return await databases.createDocument(
@@ -126,10 +177,16 @@ export const taskService = {
           actualDuration: 0,
         }
       );
-    } catch (error: any) {
-      if (error?.message?.includes('not authorized')) {
+    } catch (error: unknown) {
+      const isAuthError = error instanceof Error && error.message.includes('not authorized');
+      
+      if (isAuthError) {
         console.error('❌ Appwrite permissions error: Check collection permissions in Appwrite Console');
         console.error('📖 Please follow setup guide in APPWRITE_SETUP.md');
+        throw new AppwriteError(
+          'Check collection permissions in Appwrite Console. Please follow setup guide in APPWRITE_SETUP.md',
+          AppwriteErrorCode.PERMISSION_DENIED
+        );
       } else {
         console.error('Error creating task:', error);
       }
