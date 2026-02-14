@@ -24,12 +24,6 @@ export function ConnectionStatus({ accentColor = '#10B981' }: ConnectionStatusPr
     try {
       const result = await connectionService.validateConnection();
       setStatus(result);
-    } catch (error) {
-      setStatus({
-        isConnected: false,
-        error: 'Failed to check connection',
-        missingKeys: [],
-      });
     } finally {
       setIsChecking(false);
     }
