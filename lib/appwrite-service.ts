@@ -65,10 +65,10 @@ export const connectionService = {
         error: null,
         missingKeys: [],
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If error is 401 (unauthorized), server is reachable but user not logged in
       // This is still a valid connection
-      if (error?.code === 401) {
+      if (typeof error === 'object' && error !== null && 'code' in error && error.code === 401) {
         return {
           isConnected: true,
           error: null,
@@ -76,9 +76,10 @@ export const connectionService = {
         };
       }
 
+      const errorMessage = error instanceof Error ? error.message : 'Failed to connect to Appwrite';
       return {
         isConnected: false,
-        error: error?.message || 'Failed to connect to Appwrite',
+        error: errorMessage,
         missingKeys: [],
       };
     }
@@ -173,8 +174,10 @@ export const taskService = {
           actualDuration: 0,
         }
       );
-    } catch (error: any) {
-      if (error?.message?.includes('not authorized')) {
+    } catch (error: unknown) {
+      const isAuthError = error instanceof Error && error.message.includes('not authorized');
+      
+      if (isAuthError) {
         console.error('❌ Appwrite permissions error: Check collection permissions in Appwrite Console');
         console.error('📖 Please follow setup guide in APPWRITE_SETUP.md');
         throw new AppwriteError(

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { YStack, XStack, Text } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 import { connectionService } from '@/lib/appwrite-service';
@@ -15,19 +15,19 @@ export function ConnectionStatus({ accentColor = '#10B981' }: ConnectionStatusPr
   } | null>(null);
   const [isChecking, setIsChecking] = useState(true);
 
-  const checkConnection = useCallback(async () => {
-    setIsChecking(true);
-    try {
-      const result = await connectionService.validateConnection();
-      setStatus(result);
-    } finally {
-      setIsChecking(false);
-    }
-  }, []);
-
   useEffect(() => {
+    const checkConnection = async () => {
+      setIsChecking(true);
+      try {
+        const result = await connectionService.validateConnection();
+        setStatus(result);
+      } finally {
+        setIsChecking(false);
+      }
+    };
+
     checkConnection();
-  }, [checkConnection]);
+  }, []);
 
   if (isChecking) {
     return (

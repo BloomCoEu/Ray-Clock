@@ -73,17 +73,20 @@ export default function HomeScreen() {
       addTask(newTask as any);
       setShowTaskModal(false);
       Alert.alert('Success', 'Task created successfully');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error adding task:', error);
       
       let errorMessage = 'Failed to create task. Please try again.';
       
       // Check for specific error codes
-      if (error?.code === AppwriteErrorCode.NOT_CONFIGURED) {
-        errorMessage = error.message || 'Appwrite is not configured. Please check your .env file.';
-      } else if (error?.code === AppwriteErrorCode.PERMISSION_DENIED) {
-        errorMessage = error.message || 'You are not authorized to create tasks. Please check your Appwrite permissions.';
-      } else if (error?.message) {
+      if (error && typeof error === 'object' && 'code' in error) {
+        const errorCode = error.code;
+        if (errorCode === AppwriteErrorCode.NOT_CONFIGURED) {
+          errorMessage = error instanceof Error ? error.message : 'Appwrite is not configured. Please check your .env file.';
+        } else if (errorCode === AppwriteErrorCode.PERMISSION_DENIED) {
+          errorMessage = error instanceof Error ? error.message : 'You are not authorized to create tasks. Please check your Appwrite permissions.';
+        }
+      } else if (error instanceof Error) {
         errorMessage = error.message;
       }
       
