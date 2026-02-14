@@ -10,6 +10,7 @@ export interface Task {
   $id: string;
   userId: string;
   title: string;
+  description?: string;
   emoji?: string;
   plannedDuration: number; // in minutes
   actualDuration?: number; // in minutes

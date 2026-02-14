@@ -45,6 +45,52 @@ client
 export const account = new Account(client);
 export const databases = new Databases(client);
 
+// Connection Validation
+export const connectionService = {
+  async validateConnection() {
+    if (!appwriteConfig.isValid) {
+      return {
+        isConnected: false,
+        error: 'Appwrite configuration is incomplete',
+        missingKeys: appwriteConfig.missingKeys,
+      };
+    }
+
+    try {
+      // Try to ping the server by getting account info
+      await account.get();
+      return {
+        isConnected: true,
+        error: null,
+        missingKeys: [],
+      };
+    } catch (error: any) {
+      // If error is 401 (unauthorized), server is reachable but user not logged in
+      // This is still a valid connection
+      if (error?.code === 401) {
+        return {
+          isConnected: true,
+          error: null,
+          missingKeys: [],
+        };
+      }
+
+      return {
+        isConnected: false,
+        error: error?.message || 'Failed to connect to Appwrite',
+        missingKeys: [],
+      };
+    }
+  },
+
+  getConfigStatus() {
+    return {
+      isValid: appwriteConfig.isValid,
+      missingKeys: appwriteConfig.missingKeys,
+    };
+  },
+};
+
 // Auth Service
 export const authService = {
   async createAccount(email: string, password: string, name: string) {

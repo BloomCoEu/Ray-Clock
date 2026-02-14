@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Modal,
   ScrollView,
@@ -19,35 +19,72 @@ const EMOJI_OPTIONS = ['📝', '💼', '🎯', '📚', '💪', '🎨', '🍳', '
 
 export function TaskModal({ visible, task, onClose, onSave, accentColor }: TaskModalProps) {
   const [title, setTitle] = useState(task?.title || '');
+  const [description, setDescription] = useState(task?.description || '');
   const [duration, setDuration] = useState(task?.plannedDuration?.toString() || '15');
   const [emoji, setEmoji] = useState(task?.emoji || '📝');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [errors, setErrors] = useState<{ title?: string; duration?: string }>({});
+
+  // Update form when task prop changes
+  useEffect(() => {
+    if (task) {
+      setTitle(task.title || '');
+      setDescription(task.description || '');
+      setDuration(task.plannedDuration?.toString() || '15');
+      setEmoji(task.emoji || '📝');
+    } else {
+      setTitle('');
+      setDescription('');
+      setDuration('15');
+      setEmoji('📝');
+    }
+    setShowEmojiPicker(false);
+    setErrors({});
+  }, [task, visible]);
 
   const handleSave = () => {
+    // Validate inputs
+    const newErrors: { title?: string; duration?: string } = {};
+    
     if (!title.trim()) {
+      newErrors.title = 'Task name is required';
+    }
+
+    const parsedDuration = parseInt(duration);
+    if (!duration || isNaN(parsedDuration) || parsedDuration <= 0) {
+      newErrors.duration = 'Duration must be a positive number';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
-    const plannedDuration = parseInt(duration) || 15;
+    const plannedDuration = parsedDuration || 15;
 
     onSave({
       title: title.trim(),
+      description: description.trim() || undefined,
       plannedDuration,
       emoji,
     });
 
     // Reset form
     setTitle('');
+    setDescription('');
     setDuration('15');
     setEmoji('📝');
     setShowEmojiPicker(false);
+    setErrors({});
   };
 
   const handleClose = () => {
     setTitle('');
+    setDescription('');
     setDuration('15');
     setEmoji('📝');
     setShowEmojiPicker(false);
+    setErrors({});
     onClose();
   };
 
@@ -120,9 +157,30 @@ export function TaskModal({ visible, task, onClose, onSave, accentColor }: TaskM
                   size="$4"
                   placeholder="Enter task name"
                   value={title}
-                  onChangeText={setTitle}
+                  onChangeText={(text) => {
+                    setTitle(text);
+                    if (errors.title) setErrors({ ...errors, title: undefined });
+                  }}
+                  borderColor={errors.title ? '$red9' : '$gray5'}
+                  borderWidth={1}
+                />
+                {errors.title && (
+                  <Text fontSize="$2" color="$red9">{errors.title}</Text>
+                )}
+              </YStack>
+
+              <YStack gap="$2">
+                <Text fontSize="$4" fontWeight="600">Description (optional)</Text>
+                <Input
+                  size="$4"
+                  placeholder="Add more details about the task"
+                  value={description}
+                  onChangeText={setDescription}
                   borderColor="$gray5"
                   borderWidth={1}
+                  multiline
+                  numberOfLines={3}
+                  textAlignVertical="top"
                 />
               </YStack>
 
@@ -132,11 +190,17 @@ export function TaskModal({ visible, task, onClose, onSave, accentColor }: TaskM
                   size="$4"
                   placeholder="15"
                   value={duration}
-                  onChangeText={setDuration}
+                  onChangeText={(text) => {
+                    setDuration(text);
+                    if (errors.duration) setErrors({ ...errors, duration: undefined });
+                  }}
                   keyboardType="number-pad"
-                  borderColor="$gray5"
+                  borderColor={errors.duration ? '$red9' : '$gray5'}
                   borderWidth={1}
                 />
+                {errors.duration && (
+                  <Text fontSize="$2" color="$red9">{errors.duration}</Text>
+                )}
               </YStack>
             </YStack>
           </ScrollView>

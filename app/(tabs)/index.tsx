@@ -10,6 +10,7 @@ import { TimerDisplay } from '@/components/timer-display';
 import { TimerControls } from '@/components/timer-controls';
 import { TaskList } from '@/components/task-list';
 import { TaskModal } from '@/components/task-modal';
+import { ConnectionStatus } from '@/components/connection-status';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
@@ -70,10 +71,20 @@ export default function HomeScreen() {
 
       addTask(newTask as any);
       setShowTaskModal(false);
-      Alert.alert('Success', 'Task created');
-    } catch (error) {
+      Alert.alert('Success', 'Task created successfully');
+    } catch (error: any) {
       console.error('Error adding task:', error);
-      Alert.alert('Error', 'Failed to create task');
+      
+      let errorMessage = 'Failed to create task';
+      if (error?.message?.includes('not configured')) {
+        errorMessage = 'Appwrite is not configured. Please check your .env file.';
+      } else if (error?.message?.includes('not authorized')) {
+        errorMessage = 'You are not authorized to create tasks. Please check your Appwrite permissions.';
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      Alert.alert('Error', errorMessage);
     }
   };
 
@@ -204,9 +215,14 @@ export default function HomeScreen() {
             </YStack>
           </>
         ) : (
-          <YStack flex={1} justifyContent="center" alignItems="center" paddingVertical="$15">
+          <YStack flex={1} justifyContent="center" alignItems="center" paddingVertical="$15" paddingHorizontal="$4">
             <Text fontSize={32} marginBottom="$2">🎉 No tasks yet!</Text>
-            <Text fontSize="$4" color="$gray10" marginBottom="$6">Create a task to get started</Text>
+            <Text fontSize="$4" color="$gray10" marginBottom="$6" textAlign="center">Create a task to get started</Text>
+            
+            <YStack width="100%" maxWidth={400} gap="$4" marginBottom="$6">
+              <ConnectionStatus accentColor={accentColor} />
+            </YStack>
+            
             <Button
               size="$4"
               backgroundColor={accentColor}
