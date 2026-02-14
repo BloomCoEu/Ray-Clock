@@ -75,11 +75,13 @@ export default function HomeScreen() {
     } catch (error: any) {
       console.error('Error adding task:', error);
       
-      let errorMessage = 'Failed to create task';
-      if (error?.message?.includes('not configured')) {
-        errorMessage = 'Appwrite is not configured. Please check your .env file.';
-      } else if (error?.message?.includes('not authorized')) {
-        errorMessage = 'You are not authorized to create tasks. Please check your Appwrite permissions.';
+      let errorMessage = 'Failed to create task. Please try again.';
+      
+      // Check for specific error codes
+      if (error?.code === 'APPWRITE_NOT_CONFIGURED') {
+        errorMessage = error.message || 'Appwrite is not configured. Please check your .env file.';
+      } else if (error?.code === 'APPWRITE_PERMISSION_DENIED') {
+        errorMessage = error.message || 'You are not authorized to create tasks. Please check your Appwrite permissions.';
       } else if (error?.message) {
         errorMessage = error.message;
       }

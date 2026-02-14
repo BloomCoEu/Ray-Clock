@@ -51,7 +51,7 @@ export const connectionService = {
     if (!appwriteConfig.isValid) {
       return {
         isConnected: false,
-        error: 'Appwrite configuration is incomplete',
+        error: 'Appwrite configuration is missing required keys',
         missingKeys: appwriteConfig.missingKeys,
       };
     }
@@ -155,8 +155,9 @@ export const taskService = {
 
   async createTask(userId: string, taskData: Partial<Task>) {
     if (!appwriteConfig.isValid) {
-      console.warn('Appwrite not configured, cannot create task');
-      throw new Error('Appwrite not configured. Please check .env file.');
+      const error = new Error('Appwrite not configured. Please check .env file.');
+      (error as any).code = 'APPWRITE_NOT_CONFIGURED';
+      throw error;
     }
     try {
       return await databases.createDocument(
@@ -172,8 +173,11 @@ export const taskService = {
       );
     } catch (error: any) {
       if (error?.message?.includes('not authorized')) {
+        const permissionError = new Error('Check collection permissions in Appwrite Console. Please follow setup guide in APPWRITE_SETUP.md');
+        (permissionError as any).code = 'APPWRITE_PERMISSION_DENIED';
         console.error('❌ Appwrite permissions error: Check collection permissions in Appwrite Console');
         console.error('📖 Please follow setup guide in APPWRITE_SETUP.md');
+        throw permissionError;
       } else {
         console.error('Error creating task:', error);
       }

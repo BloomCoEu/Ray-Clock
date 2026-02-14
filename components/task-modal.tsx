@@ -183,6 +183,7 @@ export function TaskModal({ visible, task, onClose, onSave, accentColor }: TaskM
                   multiline
                   numberOfLines={3}
                   textAlignVertical="top"
+                  maxLength={1000}
                 />
               </YStack>
 
