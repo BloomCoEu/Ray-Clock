@@ -58,7 +58,8 @@ export const connectionService = {
     }
 
     try {
-      // Try to ping the server by getting account info
+      // Validate both connectivity and authentication by attempting to get account info
+      // Note: This requires user to be logged in. 401 error is acceptable (means server is reachable)
       await account.get();
       return {
         isConnected: true,
