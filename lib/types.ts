@@ -1,5 +1,18 @@
 // Type definitions for Ray Clock app
 
+// Custom error codes for better error handling
+export enum AppwriteErrorCode {
+  NOT_CONFIGURED = 'APPWRITE_NOT_CONFIGURED',
+  PERMISSION_DENIED = 'APPWRITE_PERMISSION_DENIED',
+}
+
+export class AppwriteError extends Error {
+  constructor(message: string, public code: AppwriteErrorCode) {
+    super(message);
+    this.name = 'AppwriteError';
+  }
+}
+
 export interface User {
   $id: string;
   email: string;
@@ -19,6 +32,9 @@ export interface Task {
   createdAt?: string;
   updatedAt?: string;
 }
+
+// Constants for task validation
+export const TASK_DESCRIPTION_MAX_LENGTH = 1000;
 
 export interface PresetTask {
   title: string;

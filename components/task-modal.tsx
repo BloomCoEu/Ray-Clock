@@ -6,6 +6,7 @@ import {
 import { YStack, XStack, Text, Button, Input } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 import type { Task } from '@/lib/types';
+import { TASK_DESCRIPTION_MAX_LENGTH } from '@/lib/types';
 
 interface TaskModalProps {
   visible: boolean;
@@ -183,8 +184,11 @@ export function TaskModal({ visible, task, onClose, onSave, accentColor }: TaskM
                   multiline
                   numberOfLines={3}
                   textAlignVertical="top"
-                  maxLength={1000}
+                  maxLength={TASK_DESCRIPTION_MAX_LENGTH}
                 />
+                <Text fontSize="$1" color="$gray10">
+                  {description.length}/{TASK_DESCRIPTION_MAX_LENGTH} characters
+                </Text>
               </YStack>
 
               <YStack gap="$2">

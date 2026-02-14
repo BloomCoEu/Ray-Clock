@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useTimer } from '@/hooks/use-timer';
 import { useTaskCompletion } from '@/hooks/use-task-completion';
 import { taskService } from '@/lib/appwrite-service';
+import { AppwriteErrorCode } from '@/lib/types';
 import { TimerDisplay } from '@/components/timer-display';
 import { TimerControls } from '@/components/timer-controls';
 import { TaskList } from '@/components/task-list';
@@ -78,9 +79,9 @@ export default function HomeScreen() {
       let errorMessage = 'Failed to create task. Please try again.';
       
       // Check for specific error codes
-      if (error?.code === 'APPWRITE_NOT_CONFIGURED') {
+      if (error?.code === AppwriteErrorCode.NOT_CONFIGURED) {
         errorMessage = error.message || 'Appwrite is not configured. Please check your .env file.';
-      } else if (error?.code === 'APPWRITE_PERMISSION_DENIED') {
+      } else if (error?.code === AppwriteErrorCode.PERMISSION_DENIED) {
         errorMessage = error.message || 'You are not authorized to create tasks. Please check your Appwrite permissions.';
       } else if (error?.message) {
         errorMessage = error.message;

@@ -1,5 +1,6 @@
 import { Client, Account, Databases, ID, Query } from 'appwrite';
 import type { Task, Preset, Settings } from './types';
+import { AppwriteError, AppwriteErrorCode } from './types';
 
 // Initialize Appwrite client
 const client = new Client();
@@ -155,9 +156,10 @@ export const taskService = {
 
   async createTask(userId: string, taskData: Partial<Task>) {
     if (!appwriteConfig.isValid) {
-      const error = new Error('Appwrite not configured. Please check .env file.');
-      (error as any).code = 'APPWRITE_NOT_CONFIGURED';
-      throw error;
+      throw new AppwriteError(
+        'Appwrite not configured. Please check .env file.',
+        AppwriteErrorCode.NOT_CONFIGURED
+      );
     }
     try {
       return await databases.createDocument(
@@ -173,11 +175,12 @@ export const taskService = {
       );
     } catch (error: any) {
       if (error?.message?.includes('not authorized')) {
-        const permissionError = new Error('Check collection permissions in Appwrite Console. Please follow setup guide in APPWRITE_SETUP.md');
-        (permissionError as any).code = 'APPWRITE_PERMISSION_DENIED';
         console.error('❌ Appwrite permissions error: Check collection permissions in Appwrite Console');
         console.error('📖 Please follow setup guide in APPWRITE_SETUP.md');
-        throw permissionError;
+        throw new AppwriteError(
+          'Check collection permissions in Appwrite Console. Please follow setup guide in APPWRITE_SETUP.md',
+          AppwriteErrorCode.PERMISSION_DENIED
+        );
       } else {
         console.error('Error creating task:', error);
       }
