@@ -38,9 +38,11 @@ if (!appwriteConfig.isValid) {
   );
 }
 
-client
-  .setEndpoint(APPWRITE_ENDPOINT)
-  .setProject(APPWRITE_PROJECT_ID);
+if (appwriteConfig.isValid) {
+  client
+    .setEndpoint(APPWRITE_ENDPOINT)
+    .setProject(APPWRITE_PROJECT_ID);
+}
 
 export const account = new Account(client);
 export const databases = new Databases(client);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAppStore } from '@/lib/store';
-import { authService, settingsService } from '@/lib/appwrite-service';
+import { authService, settingsService, appwriteConfig } from '@/lib/appwrite-service';
 
 export function useAuth() {
   const [isLoading, setIsLoading] = useState(true);
@@ -14,6 +14,14 @@ export function useAuth() {
   const checkAuth = async () => {
     try {
       setIsLoading(true);
+
+      // Skip auth check if Appwrite is not configured
+      if (!appwriteConfig.isValid) {
+        console.warn('Appwrite not configured — skipping auth check');
+        setUser(null);
+        return;
+      }
+
       const currentUser = await authService.getCurrentUser();
       
       if (currentUser) {

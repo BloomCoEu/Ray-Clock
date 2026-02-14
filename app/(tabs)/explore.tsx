@@ -1,5 +1,5 @@
 import { ScrollView, Linking } from 'react-native';
-import { YStack, XStack, Text, Button } from 'tamagui';
+import { YStack, Text, Button } from 'tamagui';
 import { Collapsible } from '@/components/ui/collapsible';
 import { Ionicons } from '@expo/vector-icons';
 

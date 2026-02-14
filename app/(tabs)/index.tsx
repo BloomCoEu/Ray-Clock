@@ -1,5 +1,5 @@
 import { KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { YStack, XStack, Text, Button } from 'tamagui';
 import { useAppStore } from '@/lib/store';
 import { useAuth } from '@/hooks/use-auth';
@@ -39,24 +39,25 @@ export default function HomeScreen() {
   // Use task completion hook to handle task completion
   useTaskCompletion();
 
-  useEffect(() => {
-    if (user) {
-      loadTasks();
-    }
-  }, [user]);
-
-  const loadTasks = async () => {
+  const loadTasks = useCallback(async () => {
     try {
       setTaskLoading(true);
       if (!user) return;
       const loadedTasks = await taskService.getTasks(user.$id);
       setTasks(loadedTasks.documents || []);
-    } catch (error) {
-      console.error('Error loading tasks:', error);
+    } catch {
+      console.error('Error loading tasks');
     } finally {
       setTaskLoading(false);
     }
-  };
+  }, [user, setTasks]);
+
+  useEffect(() => {
+    if (user) {
+      loadTasks();
+    }
+  }, [user, loadTasks]);
+
 
   const handleAddTask = async (taskData: any) => {
     try {
@@ -105,7 +106,7 @@ export default function HomeScreen() {
               await taskService.deleteTask(taskId);
               removeTask(taskId);
               Alert.alert('Success', 'Task deleted');
-            } catch (error) {
+            } catch {
               Alert.alert('Error', 'Failed to delete task');
             }
           },
@@ -200,6 +201,7 @@ export default function HomeScreen() {
                 tasks={tasks}
                 currentTaskIndex={currentTaskIndex}
                 accentColor={accentColor}
+                onDeleteTask={handleDeleteTask}
               />
             </YStack>
           </>

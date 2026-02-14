@@ -1,5 +1,5 @@
 import { ScrollView, Modal, Alert, FlatList } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { YStack, XStack, Text, Button, Input } from 'tamagui';
 import { useAppStore } from '@/lib/store';
 import { presetService, taskService } from '@/lib/appwrite-service';
@@ -15,18 +15,11 @@ export default function PresetsScreen() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [editingPreset, setEditingPreset] = useState<types.Preset | null>(null);
   const [presetName, setPresetName] = useState('');
 
   const accentColor = settings?.accentColor || '#10B981';
 
-  useEffect(() => {
-    if (user) {
-      loadPresets();
-    }
-  }, [user]);
-
-  const loadPresets = async () => {
+  const loadPresets = useCallback(async () => {
     try {
       setIsLoading(true);
       if (!user) return;
@@ -37,7 +30,13 @@ export default function PresetsScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user, setPresets]);
+
+  useEffect(() => {
+    if (user) {
+      loadPresets();
+    }
+  }, [user, loadPresets]);
 
   const handleCreatePreset = async () => {
     try {
@@ -115,7 +114,7 @@ export default function PresetsScreen() {
     }
   };
 
-  const calculateTotalTime = (tasks: Array<{ plannedDuration: number }>) => {
+  const calculateTotalTime = (tasks: { plannedDuration: number }[]) => {
     return tasks.reduce((sum, t) => sum + t.plannedDuration, 0);
   };
 

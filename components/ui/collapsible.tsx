@@ -11,7 +11,6 @@ import {
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   // Enable LayoutAnimation on Android
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }

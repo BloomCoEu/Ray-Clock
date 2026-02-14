@@ -1,5 +1,5 @@
 import { ScrollView, FlatList, Alert } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { YStack, XStack, Text, Button } from 'tamagui';
 import { useAppStore } from '@/lib/store';
 import { taskService } from '@/lib/appwrite-service';
@@ -12,30 +12,25 @@ export default function ReportScreen() {
   const completedTasks = useAppStore((state) => state.completedTasks);
   const setCompletedTasks = useAppStore((state) => state.setCompletedTasks);
 
-  const [isLoading, setIsLoading] = useState(false);
-
   const accentColor = settings?.accentColor || '#10B981';
 
-  useEffect(() => {
-    if (user) {
-      loadCompletedTasks();
-    }
-  }, [user]);
-
-  const loadCompletedTasks = async () => {
+  const loadCompletedTasks = useCallback(async () => {
     try {
-      setIsLoading(true);
       if (!user) return;
       // Load all tasks and filter completed ones
       const allTasks = await taskService.getTasks(user.$id);
       const completed = (allTasks.documents || []).filter((t: types.Task) => t.completed);
       setCompletedTasks(completed);
-    } catch (error) {
-      console.error('Error loading completed tasks:', error);
-    } finally {
-      setIsLoading(false);
+    } catch {
+      console.error('Error loading completed tasks');
     }
-  };
+  }, [user, setCompletedTasks]);
+
+  useEffect(() => {
+    if (user) {
+      loadCompletedTasks();
+    }
+  }, [user, loadCompletedTasks]);
 
   const calculatePlannedTime = (taskList: types.Task[]) => {
     return taskList.reduce((sum, t) => sum + t.plannedDuration, 0);
@@ -77,7 +72,7 @@ export default function ReportScreen() {
               }
               setCompletedTasks([]);
               Alert.alert('Success', 'Completed tasks cleared');
-            } catch (error) {
+            } catch {
               Alert.alert('Error', 'Failed to clear tasks');
             }
           },
