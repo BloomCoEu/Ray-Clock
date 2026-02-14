@@ -27,19 +27,21 @@ export function TaskModal({ visible, task, onClose, onSave, accentColor }: TaskM
 
   // Update form when task prop changes
   useEffect(() => {
-    if (task) {
-      setTitle(task.title || '');
-      setDescription(task.description || '');
-      setDuration(task.plannedDuration?.toString() || '15');
-      setEmoji(task.emoji || '📝');
-    } else {
-      setTitle('');
-      setDescription('');
-      setDuration('15');
-      setEmoji('📝');
+    if (visible) {
+      if (task) {
+        setTitle(task.title || '');
+        setDescription(task.description || '');
+        setDuration(task.plannedDuration?.toString() || '15');
+        setEmoji(task.emoji || '📝');
+      } else {
+        setTitle('');
+        setDescription('');
+        setDuration('15');
+        setEmoji('📝');
+      }
+      setShowEmojiPicker(false);
+      setErrors({});
     }
-    setShowEmojiPicker(false);
-    setErrors({});
   }, [task, visible]);
 
   const handleSave = () => {
